@@ -18,19 +18,22 @@ def weights_init_kaiming(m):
         m.weight.data.normal_(mean=0, std=math.sqrt(2./9./64.)).clamp_(-0.025,0.025)
         nn.init.constant(m.bias.data, 0.0)
 
-def batch_PSNR(img, imclean, data_range):
+def batch_PSNR(img, iminput, imclean, data_range, pth):
     Img = img.data.cpu().numpy().astype(np.float32)
+    Iminput= iminput.data.cpu().numpy().astype(np.float32)
     Iclean = imclean.data.cpu().numpy().astype(np.float32)
     PSNR = 0
     for i in range(Img.shape[0]):
-        plt.subplt(i+1, Img.shape[0], 2)
-        plt.imshow(Img[i,:,:,:])
+        print (i, Img.shape)
+        plt.subplot(1, 2, 1)
+        plt.imshow(Img[i,0,:,:]*255)
         if i == 0: plt.title("Noisy Image")
-        plt.subplt(2*(i+1), Img.shape[0], 2)
-        plt.imshow(Iclean[i,:,:,:])
+        plt.subplot(1, 2, 2)
+        plt.imshow(Iminput[i,0,:,:]*255)
         if i == 0: plt.title("Recon. Image")
 
         PSNR += compare_psnr(Iclean[i,:,:,:], Img[i,:,:,:], data_range=data_range)
+    plt.savefig(pth)
     return (PSNR/Img.shape[0])
 
 def data_augmentation(image, mode):

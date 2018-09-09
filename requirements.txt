@@ -1,0 +1,8 @@
+torch
+torchvision
+tensorboardx
+
+argparse
+numpy
+skimage
+matplotlib

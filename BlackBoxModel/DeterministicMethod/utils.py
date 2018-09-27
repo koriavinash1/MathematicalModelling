@@ -36,6 +36,14 @@ def batch_PSNR(img, iminput, imclean, data_range, pth):
     plt.savefig(pth)
     return (PSNR/Img.shape[0])
 
+def batch_PSNRT(img, imclean, data_range):
+    Img = img.data.cpu().numpy().astype(np.float32)
+    Iclean = imclean.data.cpu().numpy().astype(np.float32)
+    PSNR = 0
+    for i in range(Img.shape[0]):
+        PSNR += compare_psnr(Iclean[i,:,:,:], Img[i,:,:,:], data_range=data_range)
+    return (PSNR/Img.shape[0])
+
 def data_augmentation(image, mode):
     out = np.transpose(image, (1,2,0))
     if mode == 0:

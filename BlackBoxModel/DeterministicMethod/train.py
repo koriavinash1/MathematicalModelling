@@ -8,7 +8,7 @@ import torchvision.utils as utils
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
-from models import DnCNN
+from models import DnCNN, DCNN
 from dataset import prepare_data, Dataset
 from utils import *
 
@@ -17,7 +17,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 parser = argparse.ArgumentParser(description="DnCNN")
-parser.add_argument("--preprocess", type=bool, default=True, help='run prepare_data or not')
+parser.add_argument("--preprocess", type=bool, default=False, help='run prepare_data or not')
 parser.add_argument("--batchSize", type=int, default=4, help="Training batch size")
 parser.add_argument("--num_of_layers", type=int, default=17, help="Number of total layers")
 parser.add_argument("--epochs", type=int, default=50, help="Number of training epochs")
@@ -38,7 +38,7 @@ def main():
     print("# of training samples: %d\n" % int(len(dataset_train)))
 
     # Build model
-    model = DCNN(channels=1, num_of_layers=opt.num_of_layers)
+    model = DCNN(in_channels=1, num_of_layers=opt.num_of_layers)
     model.apply(weights_init_kaiming)
     model = model.to(device)
     criterion = nn.MSELoss().to(device)
@@ -93,7 +93,7 @@ def main():
             # results
             model.eval()
             out_train = torch.clamp(imgn_train - model(imgn_train), 0., 1.)
-            psnr_train = batch_PSNR(out_train, img_train, 1.)
+            psnr_train = batch_PSNRT(out_train, img_train, 1.)
 
             print("[epoch %d][%d/%d] loss: %.4f PSNR_train: %.4f" %
                 (epoch+1, i+1, len(loader_train), loss.item(), psnr_train))
@@ -115,7 +115,7 @@ def main():
             imgn_val = img_val + noise
             img_val, imgn_val = Variable(img_val.cuda()), Variable(imgn_val.cuda())
             out_val = torch.clamp(imgn_val-model(imgn_val), 0., 1.)
-            psnr_val += batch_PSNR(out_val, img_val, 1.)
+            psnr_val += batch_PSNRT(out_val, img_val, 1.)
         
         psnr_val /= len(dataset_val)
         print("\n[epoch %d] PSNR_val: %.4f" % (epoch+1, psnr_val))

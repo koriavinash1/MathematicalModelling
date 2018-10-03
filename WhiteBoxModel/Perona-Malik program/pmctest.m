@@ -1,7 +1,7 @@
 clc
 clear all
 
-a=imread('triangle.jpg'); % reading the image
+a=imread('tomo.jpg'); % reading the image
 a=im2double(a); % normalizing the instensity values to lie between o and 1
 
 ref=a;
@@ -17,3 +17,5 @@ b=pmc(ad,ref,0.001,timestep,Niter,1,w,1);
 % lambda value, 4 is the timestep size, 5 is the no of iterations, 6 is the
 % value to show the plot, 7 is the w value used in numerical approximation
 % and last argument corresponding to choice of the numerical scheme. 
+
+% b=EED(ad,ref,0.001,timestep,Niter,1,w,1); 

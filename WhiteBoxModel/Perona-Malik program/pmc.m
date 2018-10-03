@@ -30,7 +30,7 @@ for i=1:nosteps
    
    grad2=gx.*gx+gy.*gy;
    c=C(grad2);  
-   
+   size(f)
    val=ip;
    switch val
        case 1

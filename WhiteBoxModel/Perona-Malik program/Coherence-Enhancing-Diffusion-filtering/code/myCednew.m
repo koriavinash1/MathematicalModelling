@@ -1,10 +1,10 @@
-function myCEDnew( )
+function myCednew( )
 
 myalpha = 0.001; sigma=0.7; T = 15; rho = 4; C= 1;
-im = imread('../Images/2.png');
+im = imread('../../12.png');
 [numrow, numcol] = size(im)
 imorig = im;
-stepT=0.15;
+stepT=1;
 t = 0;
 im=double(im);
 
@@ -93,7 +93,7 @@ title('Orientation of smooth gradient');
 colormap('Gray');
 daspect ([1 1 1]);
 
-imwrite((uint8(im)), '../images/2CED.png');
+imwrite((uint8(im)), '../../12CED.png');
 end
 
 

@@ -1,5 +1,6 @@
 function g=gD(f,scale,ox,oy)
 % Gausssian (Derivative ) convolution
+% what's the significance of 3*sigma for kernel size ...
 K=ceil(3*scale);
 x=-K:K;
 Gs=exp(-x.^2/(2*scale^2));

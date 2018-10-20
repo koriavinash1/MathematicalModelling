@@ -1,10 +1,5 @@
-function R = eed( L, k, uscale, stepsize, nosteps, verbose, ip)
+function R = eed( L, k, uscale, stepsize, nosteps, verbose, ip, name)
 % eed: edge enhancing diffusion
-
-  if verbose
-    figure(verbose);
-    subplot(1,2,1); imshow(L); title('Original Image'); drawnow;
-  end
 
   R = L;
   for i = 1:nosteps
@@ -21,11 +16,14 @@ function R = eed( L, k, uscale, stepsize, nosteps, verbose, ip)
     c = (c1 .* Ry.^2 + c2 .* Rx.^2) ./ (Rw2+eps);
 
     R = R + stepsize * tnldStep( R, a, b, c, ip );
-
-    if verbose
-      figure(verbose);
-      subplot(1,2,2); imshow(R);
-      title('Edge Enhancing Diffusion'); drawnow;
-    end
   end
+  
+if verbose
+fig = figure(verbose);
+subplot(1,2,1); imshow(L,[]); 
+title('Original Image');
+subplot(1,2,2); imshow(R,[]);
+title('Coherence Enhancing Diffusion');
+saveas(fig, name);
+end
 end

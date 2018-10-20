@@ -1,6 +1,6 @@
-function g=pmc(f,ref,k,stepsize,nosteps,verbose,w,ip, name)
+function g=ceed(f,ref,k,stepsize,nosteps,verbose,w,ip, name)
 % Perona and Malik diffusion 
- g=f;
+ g=f + edge(ref, 'Canny');
  [n,m]=size(f);
  N=n*m;
 

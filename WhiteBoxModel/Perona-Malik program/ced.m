@@ -1,10 +1,5 @@
-function R = ced( L, k, obsscale, intscale, stepsize, nosteps, verbose, ip )
+function R = ced( L, k, obsscale, intscale, stepsize, nosteps, verbose, ip, name)
 % ced: coherence enhancing diffusion
-if verbose
-figure(verbose);
-subplot(1,2,1); imshow(L,[]); title('Original Image'); drawnow;
-end
-
 R = L;
 for i = 1:nosteps
 Rx = gD( R, obsscale, 1, 0 );
@@ -24,10 +19,14 @@ d12 = (c2-c1).*s12./(alpha+eps);
 d22 = 1/2 * (c1+c2-(c2-c1).*(s11-s22)./(alpha+eps));
 
 R = R + stepsize * tnldStep( R, d11, d12, d22, ip );
-if verbose
-figure(verbose);
-subplot(1,2,2); imshow(R,[]);
-title('Coherence Enhancing Diffusion'); drawnow;
 end
+
+if verbose
+fig = figure(verbose);
+subplot(1,2,1); imshow(L,[]); 
+title('Original Image');
+subplot(1,2,2); imshow(R,[]);
+title('Coherence Enhancing Diffusion');
+saveas(fig, name);
 end
 end

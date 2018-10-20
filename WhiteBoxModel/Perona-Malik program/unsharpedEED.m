@@ -1,13 +1,5 @@
-function g=unsharpedEED(f,ref,k,stepsize,nosteps,verbose,w,ip)
+function g=unsharpedEED(f,ref,k,stepsize,nosteps,verbose,w,ip, name)
 % Perona and Malik diffusion 
-
- if verbose
-    figure(verbose);
-    subplot(1,2,1);
-    imshow(f);
-    title('Original Image');
-    drawnow;
- end
  g=f;
  [n,m]=size(f);
  N=n*m;
@@ -38,13 +30,14 @@ for i=1:nosteps
           
        otherwise disp('invalid choice');
    end
-    
-     if verbose
-        figure(verbose);
-        subplot(1,2,2);
-        imshow(g);
-        title('Unsharped EED with Perona and Malik Diffusion');
-        drawnow;
-     end
      u=g;    
+end
+if verbose
+fig = figure(verbose);
+subplot(1,2,1); imshow(f,[]); 
+title('Original Image');
+subplot(1,2,2); imshow(g,[]);
+title('Coherence Enhancing Diffusion');
+saveas(fig, name);
+end
 end

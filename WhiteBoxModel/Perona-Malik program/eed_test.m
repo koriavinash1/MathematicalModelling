@@ -19,7 +19,7 @@ for i=1:length(images)
 
   alpha=2.7; % Used in Numerical approximation
   w= exp(4*alpha/9); % Used in Numerical approximation
-  b=eed(ad, 0.1, 1, .24, Niter, 0, 1); 
+  b=eed(ad, 0.1, 1, .24, Niter, 1, 1, strcat("EED_", images{i})); 
  
   MI_array = cat(1, MI_array, MI(ref, b));
   MSE_array = cat(1, MSE_array, MSE(ref, b));

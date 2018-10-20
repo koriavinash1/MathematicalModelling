@@ -1,4 +1,4 @@
-function g=EED(f,ref,k,stepsize,nosteps,verbose,w,ip)
+function g=unsharpedEED(f,ref,k,stepsize,nosteps,verbose,w,ip)
 % Perona and Malik diffusion 
 
  if verbose
@@ -18,22 +18,18 @@ for i=1:nosteps
      gx=gD(g,1,1,0);
      gy=gD(g,1,0,1);
 
-%    gpc=translateImage(g,1,0);
-%    gmc=translateImage(g,-1,0);
-%    gcp=translateImage(g,0,1);
-%    gcm=translateImage(g,0,-1);
-%    gpp=translateImage(g,1,1);
-%    gmp=translateImage(g,-1,1);
-%    gpm=translateImage(g,1,-1);
-%    gmm=translateImage(g,-1,-1);
+    gpc=translateImage(g,1,0);
+    gmc=translateImage(g,-1,0);
+    gcp=translateImage(g,0,1);
+    gcm=translateImage(g,0,-1);
+    gpp=translateImage(g,1,1);
+    gmp=translateImage(g,-1,1);
+    gpm=translateImage(g,1,-1);
+    gmm=translateImage(g,-1,-1);
+    size(gmm);
    
-   grad2 = gx.*gx+gy.*gy;
-   c = EED_D(gx, gy, 'x');
-%   Dy = EED_D(gx, gy, 'y');
-%   c  = sqrt(Dx .*Dx + Dy .*Dy);
- 
-   
-   
+   grad2=gx.*gx+gy.*gy;
+   c=C(grad2);  
    val=ip;
    switch val
        case 1
@@ -47,7 +43,7 @@ for i=1:nosteps
         figure(verbose);
         subplot(1,2,2);
         imshow(g);
-        title('Edge Enhanced Diffusion');
+        title('Unsharped EED with Perona and Malik Diffusion');
         drawnow;
      end
      u=g;    

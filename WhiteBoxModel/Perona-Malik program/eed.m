@@ -14,11 +14,11 @@ function R = eed( L, k, uscale, stepsize, nosteps, verbose, ip)
     Rw = sqrt(Rw2);
 
     c2 = exp( - (Rw / k).^2 );
-    c1 = 1/5 * c2
+    c1 = 1/5 * c2;
 
     a = (c1 .* Rx.^2 + c2 .* Ry.^2) ./ (Rw2+eps);
     b = (c2-c1) .* Rx .* Ry ./ (Rw2+eps);
-    c = (c1 .* Ry.^2 + c2 .* Rx.^2) ./ (Rw2+eps)
+    c = (c1 .* Ry.^2 + c2 .* Rx.^2) ./ (Rw2+eps);
 
     R = R + stepsize * tnldStep( R, a, b, c, ip );
 

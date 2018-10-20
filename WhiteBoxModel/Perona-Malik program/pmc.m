@@ -26,11 +26,10 @@ for i=1:nosteps
     gmp=translateImage(g,-1,1);
     gpm=translateImage(g,1,-1);
     gmm=translateImage(g,-1,-1);
-    size(gmm)
+    size(gmm);
    
    grad2=gx.*gx+gy.*gy;
    c=C(grad2);  
-   size(f)
    val=ip;
    switch val
        case 1

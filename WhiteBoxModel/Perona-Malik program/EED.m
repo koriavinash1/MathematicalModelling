@@ -18,16 +18,7 @@ for i=1:nosteps
      gx=gD(g,1,1,0);
      gy=gD(g,1,0,1);
 
-%    gpc=translateImage(g,1,0);
-%    gmc=translateImage(g,-1,0);
-%    gcp=translateImage(g,0,1);
-%    gcm=translateImage(g,0,-1);
-%    gpp=translateImage(g,1,1);
-%    gmp=translateImage(g,-1,1);
-%    gpm=translateImage(g,1,-1);
-%    gmm=translateImage(g,-1,-1);
-   
-   grad2 = gx.*gx+gy.*gy;
+   grad2 = gx.*gx + gy.*gy;
    c = EED_D(gx, gy, 'x');
 %   Dy = EED_D(gx, gy, 'y');
 %   c  = sqrt(Dx .*Dx + Dy .*Dy);

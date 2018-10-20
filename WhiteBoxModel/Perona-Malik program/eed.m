@@ -23,7 +23,7 @@ fig = figure(verbose);
 subplot(1,2,1); imshow(L,[]); 
 title('Original Image');
 subplot(1,2,2); imshow(R,[]);
-title('Coherence Enhancing Diffusion');
+title('Edge Enhancing Diffusion');
 saveas(fig, name);
 end
 end

@@ -1,29 +1,29 @@
-function R = eed( L, k, uscale, stepsize, nosteps, verbose, ip, name)
+function U = eed( L, ref, k, uscale, stepsize, nosteps, verbose, ip, name)
 % eed: edge enhancing diffusion
 
-  R = L;
+  U = L;
   for i = 1:nosteps
-    Rx = gD( R, uscale, 1, 0 );
-    Ry = gD( R, uscale, 0, 1 );
-    Rw2 = Rx.^2 + Ry.^2;
-    Rw = sqrt(Rw2);
+    Ux = gD( U, uscale, 1, 0 );
+    Uy = gD( U, uscale, 0, 1 );
+    UR2 = Ux.^2 + Uy.^2;
+    UR = sqrt(UR2);
 
-    c2 = exp( - (Rw / k).^2 );
-    c1 = 1/5 * c2;
+    c2 = exp( - (UR / k).^2 );
+    c1 = 1/255. * c2;
 
-    a = (c1 .* Rx.^2 + c2 .* Ry.^2) ./ (Rw2+eps);
-    b = (c2-c1) .* Rx .* Ry ./ (Rw2+eps);
-    c = (c1 .* Ry.^2 + c2 .* Rx.^2) ./ (Rw2+eps);
+    d11 = (c1 .* Ux.^2 + c2 .* Uy.^2) ./ (UR2+eps);
+    d12 = (c2-c1) .* Ux .* Uy ./ (UR2+eps);
+    d22 = (c1 .* Uy.^2 + c2 .* Ux.^2) ./ (UR2+eps);
 
-    R = R + stepsize * tnldStep( R, a, b, c, ip );
+    U = U + stepsize * tnldStep( U, d11, d12, d22, ip );
   end
   
 if verbose
 fig = figure(verbose);
 subplot(1,2,1); imshow(L,[]); 
 title('Original Image');
-subplot(1,2,2); imshow(R,[]);
+subplot(1,2,2); imshow(U,[]);
 title('Edge Enhancing Diffusion');
-saveas(fig, name);
+% saveas(fig, name);
 end
 end

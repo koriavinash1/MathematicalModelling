@@ -13,7 +13,7 @@ from sklearn.decomposition import MiniBatchDictionaryLearning
 from matplotlib import pyplot as plt
 from skimage.exposure import rescale_intensity
 
-# python image_denoising.py -i imagename -iter 500 -coeff 2 -n_comp 100
+# python -i image_denoising.py -i 01.png -iter 500 -coeff 2 -n_comp 100
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True, help="Path to the image")

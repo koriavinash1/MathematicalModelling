@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 #               Initialize Space and Time steps                   #
 ###################################################################
 Xmin   = -0.5
-Xmax   = 0.5
+Xmax   = 1.5
 deltaX = 0.05  
 X0      = np.linspace(Xmin, Xmax, int((Xmax - Xmin)/deltaX))
 
@@ -51,26 +51,24 @@ def initial_conditions_green2red(x):
 def initial_conditions_red2green(x):
 	if x <= 0.0:
 		return 1.0
-	elif 0.0 < x <= 1:
-		return 1-x
-	elif x > 1.0:
-		return 0.
+	elif x > 0.0:
+		return 0.0
 
 
 def initial_conditions_red(x):
 	if x <= 0.0:
-		return 0.550
-	elif x > 0.0:
 		return 0
+	elif x > 0.0:
+		return 0.5
 
 
 initial_conditions = initial_conditions_red
+# boundary contitions 
+LB, RB = 0.55, 0.55
+
 
 # initial U ...
 U0 = np.array([Ftransform(initial_conditions(x)) for x in X0])
-
-# boundary contitions 
-LB, RB = 0, 1
 U0[0] = Ftransform(LB)
 U0[-1] = Ftransform(RB)
 
@@ -98,7 +96,7 @@ def RHCondition(F, U):
 		s.append((F(U[i+1]) - F(U[i]))/ (U[i+1] - U[i]))
 	return s
 
-# plot_characteristic(characteristic_solution(X0, T), T)
+plot_characteristic(characteristic_solution(X0, T), T)
 
 
 
@@ -191,15 +189,15 @@ legend_array = []
 k = 0.005
 h = 0.05
 T = 1.0
-U = find_solution(U0, T, 5, k, h)
+U = find_solution(U0, T, 4, k, h)
 
 
-plt.ion()
+# plt.ion()
 for tt in range(int(T/k)):
-	# if tt % 20 == 0:
-	plt.clf()
-	plt.plot(X0[1:-1], Btransform(U[1:-1, tt]))
-	plt.pause(0.05)
-	# legend_array.append('t = {}'.format(tt*k))
-	# plt.legend(legend_array)	
-	plt.show()
+	if tt % 20 == 0:
+		# plt.clf()
+		plt.plot(X0[1:-1], Btransform(U[1:-1, tt]))
+		# plt.pause(0.2)
+		legend_array.append('t = {}'.format(tt*k))
+		plt.legend(legend_array)	
+plt.show()

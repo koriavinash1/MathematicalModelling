@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
-nsteps = 60
-Xmin   = -0.4
-Xmax   = 0.4
+Xmin   = -1.5
+Xmax   = 1.5
 deltaX = 0.05  
 X0      = np.linspace(Xmin, Xmax, int((Xmax - Xmin)/deltaX))
 
@@ -24,7 +24,7 @@ def initial_conditions(x):
 	if x <= 0.0:
 		return -1.0
 	# elif 0.0< x <=1.0:
-	# 	return 1.0 - x
+		# return 1.0 - x
 	elif x > 0.0:
 		return 1.0
 
@@ -48,7 +48,7 @@ def RHCondition(F, U):
 	for i in range(len(U) - 1):
 		s.append((F(U[i+1]) - F(U[i]))/ (U[i+1] - U[i]))
 	return s
-# plot_characteristic(characteristic_solution(X0, T), T)
+plot_characteristic(characteristic_solution(X0, T), T)
 
 def Upwind_Method(F, FD, U, k, h):
 	for i in range(1, len(U) - 1):
@@ -98,13 +98,13 @@ def Gudonov_Method(F, FD, FStarSolve, U, k, h):
 	return U
 
 
-def find_solution(U0, T, nsteps, k, h, method='upwind'):
+def find_solution(U0, T, nsteps, k, h, method='Gudonov_Method'):
 	tsteps = int(T/k) + 1
 	U = np.zeros((len(U0), tsteps))
 	U[:, 0] = U0
 
 	# print ("[INFO] tsteps: {}, nsteps: {}".format(tsteps, nsteps))
-	for tt in range(tsteps - 1):
+	for tt in tqdm(range(tsteps - 1)):
 		for xx in range(nsteps):
 			# print "[Secondary INFO] tt: {}: Utt: {}".format(tt, U[:, tt])
 			if method == 'upwind':
@@ -119,11 +119,28 @@ def find_solution(U0, T, nsteps, k, h, method='upwind'):
 	return U
 
 
-U0 = np.array([initial_conditions(x) for x in X0])
+# legend_array = []
+# for T in [0, 0.005, 0.5, 1.0]:
+# 	U = find_solution(U0, T, 2, 0.005, 0.14)
+# 	plt.plot(X0, U[:, -1])
+# 	legend_array.append('t = {}'.format(T))
+# plt.legend(legend_array)	
+# plt.show()
+
 legend_array = []
-for T in [0, 0.005, 0.5, 1.0]:
-	U = find_solution(U0, T, 2, 0.005, 0.14)
-	plt.plot(X0, U[:, -1])
-	legend_array.append('t = {}'.format(T))
-plt.legend(legend_array)	
+k = 0.005
+h = 0.05
+T = 1.0
+U0 = np.array([initial_conditions(x) for x in X0])
+U = find_solution(U0, T, 15, k, h)
+
+
+# plt.ion()
+for tt in range(int(T/k)):
+	if tt % 20 == 0:
+		# plt.clf()
+		plt.plot(X0[1:-1], (1.0 - U[1:-1, tt])/2.0)
+		# plt.pause(0.2)
+		legend_array.append('t = {}'.format(tt*k))
+		plt.legend(legend_array)	
 plt.show()

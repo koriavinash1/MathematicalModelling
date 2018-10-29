@@ -1,17 +1,26 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-nsteps = 60
-Xmin   = -0.5
-Xmax   = 0.0
+
+###################################################################
+#               Initialize Space and Time steps                   #
+###################################################################
+Xmin   = -0.35
+Xmax   = 0.35
 deltaX = 0.05  
 X0      = np.linspace(Xmin, Xmax, int((Xmax - Xmin)/deltaX))
 
 Tmin = 0
 Tmax = 5
-deltaT = 0.15
+deltaT = 0.005
 T      = np.linspace(Tmin, Tmax, int((Tmax - Tmin)/deltaT))
 
+
+
+
+###################################################################
+#           Function Defination for Burger's equation             #
+###################################################################
 # U_t + F(U(X,t))_x = 0
 # U(X, T) is constant
 
@@ -21,13 +30,52 @@ FD = lambda U: U
 FStarSolve = lambda: 0
 Btransform = lambda U: (1.0 - U)/2.0
 Ftransform = lambda U: (1.0 - U*2.0)
-def initial_conditions(x):
+
+
+###################################################################
+#                 Initial Condition Defination                    #
+###################################################################
+
+def initial_conditions_green2red(x):
 	if x <= 0.0:
-		return 0.55
-	# elif 0.0< x <=1.0:
-	# 	return 1.0 - x
-	elif x > 0.0:
+		return 0.5
+	elif -1.0 < x <= 0:
+		return 1.0 - x
+	elif 0.0 < x <= 1.0:
+		return x - 1.0
+	elif x > 1.0:
 		return 0.0
+
+
+def initial_conditions_red2green(x):
+	if x <= 0.0:
+		return 0.5
+	elif 0.0 < x <= 1:
+		return x - 1.0
+	elif x > 1.0:
+		return 0.0
+
+
+def initial_conditions_red(x):
+	if x <= 0.0:
+		return 0.225
+	elif x > 0.0:
+		return 0
+
+
+initial_conditions = initial_conditions_red
+
+# initial U ...
+U0 = np.array([Ftransform(initial_conditions(x)) for x in X0])
+
+# boundary contitions 
+LB, RB = 0.225, 0
+U0[0] = Ftransform(LB)
+U0[-1] = Ftransform(RB)
+
+###################################################################
+#       Plot Characteristics of Burgers Equation (Static)         #
+###################################################################
 
 def characteristic_solution(x0, t):
 	x = []
@@ -50,6 +98,12 @@ def RHCondition(F, U):
 		s.append((F(U[i+1]) - F(U[i]))/ (U[i+1] - U[i]))
 	return s
 # plot_characteristic(characteristic_solution(X0, T), T)
+
+
+
+###################################################################
+#           Numerical Schemes for solving Burger's Eqn            #
+###################################################################
 
 def Upwind_Method(F, FD, U, k, h):
 	for i in range(1, len(U) - 1):
@@ -99,6 +153,12 @@ def Gudonov_Method(F, FD, FStarSolve, U, k, h):
 	return U
 
 
+
+###################################################################
+#                     Solve Burgers Equation                      #
+###################################################################
+
+
 def find_solution(U0, T, nsteps, k, h, method='Upwind_Method'):
 	tsteps = int(T/k) + 1
 	U = np.zeros((len(U0), tsteps))
@@ -121,12 +181,15 @@ def find_solution(U0, T, nsteps, k, h, method='Upwind_Method'):
 	return U
 
 
-U0 = np.array([Ftransform(initial_conditions(x)) for x in X0])
+
+###################################################################
+#                     Solve Burgers Equation                      #
+###################################################################
+
 legend_array = []
-LB, RB = 0.55, 1
-U0[0] = Ftransform(LB)
-U0[-1] = Ftransform(RB)
-U = find_solution(U0, 1.0, 2, 0.005, 0.05)
+k = 0.005
+h = 0.05
+U = find_solution(U0, 1.0, int(len(X0)/h), k, h)
 
 
 for tt in range(int(1/0.005)):

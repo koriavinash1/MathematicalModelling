@@ -59,18 +59,18 @@ def initial_conditions_red2green(x):
 
 def initial_conditions_red(x):
 	if x <= 0.0:
-		return 0.55
+		return 0.550
 	elif x > 0.0:
 		return 0
 
 
-initial_conditions = initial_conditions_red2green
+initial_conditions = initial_conditions_red
 
 # initial U ...
 U0 = np.array([Ftransform(initial_conditions(x)) for x in X0])
 
 # boundary contitions 
-LB, RB = 0.55, 0
+LB, RB = 0, 1
 U0[0] = Ftransform(LB)
 U0[-1] = Ftransform(RB)
 
@@ -191,12 +191,15 @@ legend_array = []
 k = 0.005
 h = 0.05
 T = 1.0
-U = find_solution(U0, T, 2, k, h)
+U = find_solution(U0, T, 5, k, h)
 
 
+plt.ion()
 for tt in range(int(T/k)):
-	if tt % 20 == 0:
-		plt.plot(X0[1:-1], Btransform(U[1:-1, tt]))
-		legend_array.append('t = {}'.format(tt*k))
-plt.legend(legend_array)	
-plt.show()
+	# if tt % 20 == 0:
+	plt.clf()
+	plt.plot(X0[1:-1], Btransform(U[1:-1, tt]))
+	plt.pause(0.05)
+	# legend_array.append('t = {}'.format(tt*k))
+	# plt.legend(legend_array)	
+	plt.show()

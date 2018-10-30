@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 ###################################################################
 #               Initialize Space and Time steps                   #
 ###################################################################
-Xmin   = -0.5
+Xmin   = -1.5
 Xmax   = 1.5
 deltaX = 0.05  
 X0      = np.linspace(Xmin, Xmax, int((Xmax - Xmin)/deltaX))
@@ -25,11 +25,12 @@ T      = np.linspace(Tmin, Tmax, int((Tmax - Tmin)/deltaT))
 # U(X, T) is constant
 
 # initilize F
+rhoMax = 1.0
 F = lambda U: U**2/2
 FD = lambda U: U
 FStarSolve = lambda: 0
-Btransform = lambda U: (1.0 - U)/2.0
-Ftransform = lambda U: (1.0 - U*2.0)
+U2rho = lambda U: (1.0 - U)*rhoMax/2.0
+rho2U = lambda U: (1.0 - U*2.0/rhoMax)
 
 
 ###################################################################
@@ -57,20 +58,18 @@ def initial_conditions_red2green(x):
 
 def initial_conditions_red(x):
 	if x <= 0.0:
-		return 0
+		return -1
 	elif x > 0.0:
-		return 0.5
+		return 1.0	
 
 
 initial_conditions = initial_conditions_red
 # boundary contitions 
 LB, RB = 0.55, 0.55
-
-
 # initial U ...
-U0 = np.array([Ftransform(initial_conditions(x)) for x in X0])
-U0[0] = Ftransform(LB)
-U0[-1] = Ftransform(RB)
+# U0 = rho2U(0.55)*np.ones(len(X0))
+U0 = np.array([initial_conditions(x) for x in X0])
+
 
 ###################################################################
 #       Plot Characteristics of Burgers Equation (Static)         #
@@ -79,7 +78,7 @@ U0[-1] = Ftransform(RB)
 def characteristic_solution(x0, t):
 	x = []
 	for i in range(len(x0)):
-		x.append(Ftransform(initial_conditions(x0[i])*t + x0[i]))
+		x.append(rho2U(initial_conditions(x0[i])*t + x0[i]))
 	return np.array(x)
 
 
@@ -112,10 +111,12 @@ def Upwind_Method(F, FD, U, k, h):
 			U[i] = U[i] - (k/h)*(F(U[i +1]) - F(U[i]))
 	return U
 
+
 def Lax_Friedrichs_scheme(F, FD, U, k, h):
 	for i in range(1, len(U) - 1):
 		U[i] =0.5*(U[i+1] + U[i-1]) - (k/(2.*h))*(F(U[i +1]) - F(U[i]))
 	return U
+
 
 def Mac_Cornack_scheme(F, FD, U, k, h):
 	Ustar = lambda u, up1: u - (k/h)*(F(up1) - F(u))
@@ -124,11 +125,13 @@ def Mac_Cornack_scheme(F, FD, U, k, h):
 		 (k/h)*(F(Ustar(U[i], U[i+1])) - F(Ustar(U[i-1], U[i])))
 	return U
 
+
 def Richtmyer_two_step_Lax_Wendroff_scheme(F, FD, U, k, h):
 	Ustar = lambda u, up1: 0.5*(u + up1) - (k/h)*(F(up1) - F(u))
 	for i in range(1, len(U) - 1):
 		U[i] = U[i] - (k/h)*(F(Ustar(U[i], U[i+1])) - F(Ustar(U[i-1], U[i])))
 	return U
+
 
 def Gudonov_Method(F, FD, FStarSolve, U, k, h):
 	def Speed(u, up1):
@@ -152,18 +155,24 @@ def Gudonov_Method(F, FD, FStarSolve, U, k, h):
 	return U
 
 
-
 ###################################################################
 #                     Solve Burgers Equation                      #
 ###################################################################
 
 
-def find_solution(U0, T, nsteps, k, h, method='Upwind_Method'):
+def find_solution(U0, T, nsteps, k, h, method='Gudonov_Method'):
 	tsteps = int(T/k) + 1
 	U = np.zeros((len(U0), tsteps))
 	U[:, 0] = U0
+	U[0, :] = U[0, 0]
 
+
+	# solver
 	for tt in range(tsteps - 1):
+		# boundary conditions
+		U[0 , :0] = -1.0
+		U[-1, 0:] = 1.0
+
 		for xx in range(nsteps):
 			if method == 'Upwind_Method':
 				U[:, tt + 1] = Upwind_Method(F, FD, U[:, tt], k, h)
@@ -175,7 +184,10 @@ def find_solution(U0, T, nsteps, k, h, method='Upwind_Method'):
 				U[:, tt + 1] = Gudonov_Method(F, FD, FStarSolve, U[:, tt], k, h)
 
 		if tt % 20 == 0:
-			print "[INFO] tt: {}: Utt: {}".format(tt*k,list(Btransform(U[1:-1, tt])))
+			print "[INFO] tt: {}: Utt: {}".format(tt*k,list(U2rho(U[1:-1, tt])))
+
+		# U[0, :] = U[1, :]
+		# U[-1,:] = U[-2, :]
 
 	return U
 
@@ -189,14 +201,15 @@ legend_array = []
 k = 0.005
 h = 0.05
 T = 1.0
-U = find_solution(U0, T, 4, k, h)
+nsteps = int(len(X0)/h)
+U = find_solution(U0, T, 50, k, h)
 
 
 # plt.ion()
 for tt in range(int(T/k)):
 	if tt % 20 == 0:
 		# plt.clf()
-		plt.plot(X0[1:-1], Btransform(U[1:-1, tt]))
+		plt.plot(X0[1:-1], U2rho(U[1:-1, tt]))
 		# plt.pause(0.2)
 		legend_array.append('t = {}'.format(tt*k))
 		plt.legend(legend_array)	

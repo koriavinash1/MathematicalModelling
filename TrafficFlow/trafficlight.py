@@ -21,10 +21,10 @@ FD = lambda U: U
 FStarSolve = lambda: 0
 
 def initial_conditions(x):
-	if x <= 0.0:
-		return -1.0
-	# elif 0.0< x <=1.0:
-		# return 1.0 - x
+	if x <= -1.0:
+		return 0.550
+	elif -1.0< x <=0.0:
+		return 0
 	elif x > 0.0:
 		return 1.0
 
@@ -132,7 +132,7 @@ k = 0.005
 h = 0.05
 T = 1.0
 U0 = np.array([initial_conditions(x) for x in X0])
-U = find_solution(U0, T, 25, k, h)
+U = find_solution(U0, T, 20, k, h)
 
 
 # plt.ion()

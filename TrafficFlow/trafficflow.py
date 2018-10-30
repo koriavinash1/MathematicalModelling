@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 ###################################################################
 #               Initialize Space and Time steps                   #
 ###################################################################
-Xmin   = -1.5
-Xmax   = 1.5
+Xmin   = -0.5
+Xmax   = 0.5
 deltaX = 0.05  
 X0      = np.linspace(Xmin, Xmax, int((Xmax - Xmin)/deltaX))
 
@@ -29,6 +29,7 @@ rhoMax = 1.0
 F = lambda U: U**2/2
 FD = lambda U: U
 FStarSolve = lambda: 0
+LB, RB = 0.55, 0.0  
 U2rho = lambda U: (1.0 - U)*rhoMax/2.0
 rho2U = lambda U: (1.0 - U*2.0/rhoMax)
 
@@ -67,8 +68,8 @@ initial_conditions = initial_conditions_red
 # boundary contitions 
 LB, RB = 0.55, 0.55
 # initial U ...
-# U0 = rho2U(0.55)*np.ones(len(X0))
-U0 = np.array([initial_conditions(x) for x in X0])
+U0 = rho2U(0.55)*np.ones(len(X0))
+# U0 = np.array([initial_conditions(x) for x in X0])
 
 
 ###################################################################
@@ -95,7 +96,7 @@ def RHCondition(F, U):
 		s.append((F(U[i+1]) - F(U[i]))/ (U[i+1] - U[i]))
 	return s
 
-plot_characteristic(characteristic_solution(X0, T), T)
+# plot_characteristic(characteristic_solution(X0, T), T)
 
 
 
@@ -164,14 +165,13 @@ def find_solution(U0, T, nsteps, k, h, method='Gudonov_Method'):
 	tsteps = int(T/k) + 1
 	U = np.zeros((len(U0), tsteps))
 	U[:, 0] = U0
-	U[0, :] = U[0, 0]
-
+	idx = len(U0)//2 if len(U0) %2 == 0 else len(U0)//2 + 1
 
 	# solver
 	for tt in range(tsteps - 1):
 		# boundary conditions
-		U[0 , :0] = -1.0
-		U[-1, 0:] = 1.0
+		U[idx -1, tt]  = rho2U(LB)
+		U[idx + 1, tt] = rho2U(RB)
 
 		for xx in range(nsteps):
 			if method == 'Upwind_Method':
@@ -186,8 +186,8 @@ def find_solution(U0, T, nsteps, k, h, method='Gudonov_Method'):
 		if tt % 20 == 0:
 			print "[INFO] tt: {}: Utt: {}".format(tt*k,list(U2rho(U[1:-1, tt])))
 
-		# U[0, :] = U[1, :]
-		# U[-1,:] = U[-2, :]
+		U[0, tt]  = U[1, tt]
+		U[-1, tt] = U[-2, tt]
 
 	return U
 
@@ -202,7 +202,7 @@ k = 0.005
 h = 0.05
 T = 1.0
 nsteps = int(len(X0)/h)
-U = find_solution(U0, T, 50, k, h)
+U = find_solution(U0, T, 10, k, h)
 
 
 # plt.ion()

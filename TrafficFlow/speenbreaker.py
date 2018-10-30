@@ -17,27 +17,29 @@ T      = np.linspace(Tmin, Tmax, int((Tmax - Tmin)/deltaT))
 
 
 
+
 ###################################################################
-#            Function Defination for Burger's equation            #
-#                                                                 #
+#           Function Defination for Burger's equation             #
 ###################################################################
 # U_t + F(U(X,t))_x = 0
 # U(X, T) is constant
 
 # initilize F
 rhoMax = 1.0
+vmax   = 1.0
 F = lambda U: U**2/2
 FD = lambda U: U
 FStarSolve = lambda: 0
 LB, RB = 0.55, 0.0  
-U2rho = lambda U: (1.0 - U)*rhoMax/2.0
-rho2U = lambda U: (1.0 - U*2.0/rhoMax)
+U2rho = lambda U: (1.0/vmax - U)*rhoMax/2.0
+rho2U = lambda U: vmax*(1.0 - U*2.0/rhoMax)
 
 
 ###################################################################
 #                 Initial Condition Defination                    #
 #				     Conditions on Rho not U                      #
 ###################################################################
+
 
 def initial_conditions_green2red(x):
 	if x <= 0.0:
@@ -68,8 +70,8 @@ initial_conditions = initial_conditions_red
 # boundary contitions 
 LB, RB = 0.55, 0.55
 # initial U ...
-U0 = rho2U(0.55)*np.ones(len(X0))
-# U0 = np.array([rho2U(initial_conditions(x)) for x in X0])
+# U0 = rho2U(0.55)*np.ones(len(X0))
+U0 = np.array([initial_conditions(x) for x in X0])
 
 
 ###################################################################
@@ -186,8 +188,8 @@ def find_solution(U0, T, nsteps, k, h, method='Gudonov_Method'):
 		if tt % 20 == 0:
 			print "[INFO] tt: {}: Utt: {}".format(tt*k,list(U2rho(U[1:-1, tt])))
 
-		U[0, tt+1]  = U[1, tt+1]
-		U[-1, tt+1] = U[-2, tt+1]
+		U[0, tt]  = U[1, tt]
+		U[-1, tt] = U[-2, tt]
 
 	return U
 

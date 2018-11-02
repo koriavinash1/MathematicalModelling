@@ -32,59 +32,28 @@ T      = np.linspace(Tmin, Tmax, int((Tmax - Tmin)/deltaT))
 # initilize F
 rhoMax = 1.0
 vmax   = 1.0
-F = lambda U: U**2/2
-FD = lambda U: U
-FStarSolve = lambda: 0
+F = lambda rho: rho*vmax*(1.0 - rho/rhoMax)
+FD = lambda rho: vmax - 2*rho/rhoMax
+FStarSolve = lambda: vmax*rhoMax/2.0
  
-U2rho = lambda U: (1.0/vmax - U)*rhoMax/2.0
-rho2U = lambda U: vmax*(1.0 - U*2.0/rhoMax)
+v2rho = lambda v: (-1*v/vmax + 1.0)*rhoMax/2.0 
+rho2v = lambda rho: vmax*(1.0 - 2*rho/rhoMax) 
 
 
 ###################################################################
 #                 Initial Condition Defination                    #
-#				     Conditions on Rho not U                      #
+#	             Conditions on Rho not U                      #
 ###################################################################
-
-def initial_conditions_red(x):
+def initial_conditions(x):
 	if x <= 0.0:
 		return 1.0
 	elif x > 0.0:
-		return -1.0	
+		return 0.0
+BSB, ASB = 0.45, 0.1	 # rho before and after speedBreaker
 
-
-initial_conditions = initial_conditions_red
-# boundary contitions 
-BL, AL = 0.45, 0.1	 # before and after light
-# initial U ...
-U0 = rho2U(0.55)*np.ones(len(X0))
-# U0 = np.array([initial_conditions(x) for x in X0])
-
-
-###################################################################
-#       Plot Characteristics of Burgers Equation (Static)         #
-###################################################################
-
-def characteristic_solution(x0, t):
-	x = []
-	for i in range(len(x0)):
-		x.append(rho2U(initial_conditions(x0[i])*t + x0[i]))
-	return np.array(x)
-
-
-def plot_characteristic(x, t):
-	for i in range(x.shape[0]):
-		plt.plot(x[i], t, 'g')
-	plt.show()
-
-
-# Rankine-Hugoniot condition
-def RHCondition(F, U):
-	s = []
-	for i in range(len(U) - 1):
-		s.append((F(U[i+1]) - F(U[i]))/ (U[i+1] - U[i]))
-	return s
-
-# plot_characteristic(characteristic_solution(X0, T), T)
+# initial rho ...
+# rho0 = 0.55*np.ones(len(X0))
+rho0 = np.array([initial_conditions(x) for x in X0])
 
 
 ###################################################################
@@ -153,52 +122,51 @@ def Gudonov_Method(F, FD, FStarSolve, U, k, h):
 ###################################################################
 
 
-def find_solution(U0, T, nsteps, k, h, method='Gudonov_Method'):
+def find_solution(rho0, T, nsteps, k, h, method='Gudonov_Method'):
 	tsteps = int(T/k) + 1
-	U = np.zeros((len(U0), tsteps))
-	U[:, 0] = U0
-	U[0, :] = U[0, 0]  
-	idx = len(U0)//2 if len(U0) %2 == 0 else len(U0)//2 + 1
-	print "idx: {}, len(X): {}".format(idx, len( U0[U0==1.0]))
+	rho = np.zeros((len(rho0), tsteps))
+	rho[:, 0] = rho0
+	rho[0, :] = rho[0, 0]  
+	idx = len(rho0)//2 if len(rho0) %2 == 0 else len(rho0)//2 + 1
+	print "idx: {}, len(X): {}".format(idx, len( rho0[rho0==1.0]))
 	# solver
 	for tt in range(tsteps - 1):
 		# boundary conditions
 		# first half time red and next half time green light condition
-		U[idx, :]     = rho2U(BL)
-		U[idx + 1, :] = rho2U(AL)
+		rho[idx, :]     = BSB
+		rho[idx + 1, :] = ASB
 
-		U[0, :]  = U[1, :]
-		U[-1, :] = U[-2, :]
+		rho[0, :]  = rho[1, :]
+		rho[-1, :] = rho[-2, :]
 		
 		for xx in range(nsteps):
 			if method == 'Upwind_Method':
-				U[:, tt + 1] = Upwind_Method(F, FD, U[:, tt], k, h)
+				rho[:, tt + 1] = Upwind_Method(F, FD, rho[:, tt], k, h)
 			elif method == 'Mac_Cornack_scheme':
-				U[:, tt + 1] = Mac_Cornack_scheme(F, FD, U[:, tt], k, h)
+				rho[:, tt + 1] = Mac_Cornack_scheme(F, FD, rho[:, tt], k, h)
 			elif method == 'Lax_Friedrichs_scheme':
-				U[:, tt + 1] = Lax_Friedrichs_scheme(F, FD, U[:, tt], k, h)
+				rho[:, tt + 1] = Lax_Friedrichs_scheme(F, FD, rho[:, tt], k, h)
 			elif method == 'Gudonov_Method':
-				U[:, tt + 1] = Gudonov_Method(F, FD, FStarSolve, U[:, tt], k, h)
+				rho[:, tt + 1] = Gudonov_Method(F, FD, FStarSolve, rho[:, tt], k, h)
 
 		if tt % 200 == 0:
-			print "[INFO] tt: {}: Utt: {}".format(tt*k,list(U2rho(U[1:-1, tt])))
+			print "[INFO] tt: {}: Utt: {}".format(tt*k,list(rho[1:-1, tt]))
 
 
-	return U
+	return rho
 
 ###################################################################
 #                     Solve Burgers Equation                      #
 ###################################################################
-"""
 legend_array = []
 nsteps = int(len(X0)/h)
-U = find_solution(U0, Tmax, nsteps, k, h)
+rho = find_solution(rho0, Tmax, nsteps, k, h)
 
 
 plt.ion()
 for tt in range(int(Tmax/k)):
 	plt.clf()
-	plt.plot(X0[1:-1], U2rho(U[1:-1, tt]))
+	plt.plot(X0[1:-1], rho[1:-1, tt])
 	plt.title("Speed Breaker: {}/{}".format(tt,int(Tmax/k)))
 	plt.ylim([-0.5, 1.5])
 	plt.pause(0.001)
@@ -210,7 +178,7 @@ for tt in range(int(Tmax/k)):
 	# legend_array.append('t = {}'.format(tt*k))
 	# plt.legend(legend_array)	
 # plt.show()
-"""
+
 
 import imageio
 import os

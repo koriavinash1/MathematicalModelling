@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 ###################################################################
 k = 0.005
 h = 0.05
-Tmax = 2.0
+Tmax = 1.0
 
 Xmin   = -0.55
 Xmax   = 0.5
@@ -42,7 +42,7 @@ rho2v = lambda rho: vmax*(1.0 - 2*rho/rhoMax)
 
 ###################################################################
 #                 Initial Condition Defination                    #
-#	             Conditions on Rho not U                      #
+#	                 Conditions on Rho not U                      #
 ###################################################################
 def initial_conditions(x):
 	if x <= 0.0:
@@ -52,7 +52,7 @@ def initial_conditions(x):
 BSB, ASB = 0.45, 0.1	 # rho before and after speedBreaker
 
 # initial rho ...
-# rho0 = 0.55*np.ones(len(X0))
+# rho0 = 0.25*np.ones(len(X0))
 rho0 = np.array([initial_conditions(x) for x in X0])
 
 
@@ -67,7 +67,7 @@ def Upwind_Method(F, FD, U, k, h):
 			temp[i] = U[i] - (k/h)*(F(U[i]) - F(U[i-1]))
 		else:
 			temp[i] = U[i] - (k/h)*(F(U[i +1]) - F(U[i]))
-	return U
+	return temp
 
 
 def Lax_Friedrichs_scheme(F, FD, U, k, h):
@@ -83,7 +83,7 @@ def Mac_Cornack_scheme(F, FD, U, k, h):
 	for i in range(1, len(U) - 1):
 		temp[i] =0.5*(U[i] + Ustar(U[i], U[i+1])) -\
 		 (k/h)*(F(Ustar(U[i], U[i+1])) - F(Ustar(U[i-1], U[i])))
-	return U
+	return temp
 
 
 def Richtmyer_two_step_Lax_Wendroff_scheme(F, FD, U, k, h):
@@ -91,7 +91,7 @@ def Richtmyer_two_step_Lax_Wendroff_scheme(F, FD, U, k, h):
 	temp = np.zeros_like(U)
 	for i in range(1, len(U) - 1):
 		temp[i] = U[i] - (k/h)*(F(Ustar(U[i], U[i+1])) - F(Ustar(U[i-1], U[i])))
-	return U
+	return temp
 
 
 def Gudonov_Method(F, FD, FStarSolve, U, k, h):
@@ -132,7 +132,6 @@ def find_solution(rho0, T, nsteps, k, h, method='Gudonov_Method'):
 	# solver
 	for tt in range(tsteps - 1):
 		# boundary conditions
-		# first half time red and next half time green light condition
 		rho[idx, :]     = BSB
 		rho[idx + 1, :] = ASB
 
@@ -149,7 +148,7 @@ def find_solution(rho0, T, nsteps, k, h, method='Gudonov_Method'):
 			elif method == 'Gudonov_Method':
 				rho[:, tt + 1] = Gudonov_Method(F, FD, FStarSolve, rho[:, tt], k, h)
 
-		if tt % 200 == 0:
+		if tt % 20 == 0:
 			print "[INFO] tt: {}: Utt: {}".format(tt*k,list(rho[1:-1, tt]))
 
 
@@ -189,4 +188,3 @@ for tt in range(int(Tmax/k)):
     file_path = os.path.join(png_dir, str(tt) + '.png')
     images.append(imageio.imread(file_path))
 imageio.mimsave('../imgs/sb-movie.gif', images, fps=50)
-

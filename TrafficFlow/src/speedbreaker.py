@@ -49,10 +49,10 @@ def initial_conditions(x):
 		return 1.0
 	elif x > 0.0:
 		return 0.0
-BSB, ASB = 0.45, 0.1	 # rho before and after speedBreaker
+BSB, ASB = 1.0, 0.1	 # rho before and after speedBreaker
 
 # initial rho ...
-# rho0 = 0.25*np.ones(len(X0))
+# rho0 = 0.55*np.ones(len(X0))
 rho0 = np.array([initial_conditions(x) for x in X0])
 
 
@@ -132,8 +132,8 @@ def find_solution(rho0, T, nsteps, k, h, method='Gudonov_Method'):
 	# solver
 	for tt in range(tsteps - 1):
 		# boundary conditions
-		rho[idx, :]     = BSB
-		rho[idx + 1, :] = ASB
+		rho[idx, :] = v2rho(BSB)
+		rho[idx + 1, :] = v2rho(ASB)
 
 		rho[0, :]  = rho[1, :]
 		rho[-1, :] = rho[-2, :]
@@ -145,6 +145,8 @@ def find_solution(rho0, T, nsteps, k, h, method='Gudonov_Method'):
 				rho[:, tt + 1] = Mac_Cornack_scheme(F, FD, rho[:, tt], k, h)
 			elif method == 'Lax_Friedrichs_scheme':
 				rho[:, tt + 1] = Lax_Friedrichs_scheme(F, FD, rho[:, tt], k, h)
+			elif method == 'Richtmyer_two_step_Lax_Wendroff_scheme':
+				U[:, tt + 1] = Gudonov_Method(F, FD, FStarSolve, U[:, tt], k, h)
 			elif method == 'Gudonov_Method':
 				rho[:, tt + 1] = Gudonov_Method(F, FD, FStarSolve, rho[:, tt], k, h)
 

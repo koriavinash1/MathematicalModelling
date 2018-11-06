@@ -178,6 +178,8 @@ def find_solution(U0, T, nsteps, k, h, method='Gudonov_Method'):
 				U[:, tt + 1] = Mac_Cornack_scheme(F, FD, U[:, tt], k, h)
 			elif method == 'Lax_Friedrichs_scheme':
 				U[:, tt + 1] = Lax_Friedrichs_scheme(F, FD, U[:, tt], k, h)
+			elif method == 'Richtmyer_two_step_Lax_Wendroff_scheme':
+				U[:, tt + 1] = Gudonov_Method(F, FD, FStarSolve, U[:, tt], k, h)
 			elif method == 'Gudonov_Method':
 				U[:, tt + 1] = Gudonov_Method(F, FD, FStarSolve, U[:, tt], k, h)
 

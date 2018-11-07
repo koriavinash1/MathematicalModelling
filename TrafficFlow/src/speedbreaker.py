@@ -39,7 +39,8 @@ FStarSolve = lambda: vmax*rhoMax/2.0
 v2rho = lambda v: (-1*v/vmax + 1.0)*rhoMax/2.0 
 rho2v = lambda rho: vmax*(1.0 - 2*rho/rhoMax) 
 
-
+U2rho = lambda U: (1.0 - U)*rhoMax/2.0
+rho2U = lambda rho: (1.0 - rho*2.0/rhoMax)
 ###################################################################
 #                 Initial Condition Defination                    #
 #	                 Conditions on Rho not U                      #
@@ -155,6 +156,41 @@ def find_solution(rho0, T, nsteps, k, h, method='Gudonov_Method'):
 
 
 	return rho
+
+
+# def find_solution(U0, T, nsteps, k, h, method='Gudonov_Method'):
+# 	tsteps = int(T/k) + 1
+# 	U = np.zeros((len(U0), tsteps))
+# 	U[:, 0] = U0
+# 	U[0, :] = U[0, 0]  
+# 	idx = len(U0)//2 if len(U0) %2 == 0 else len(U0)//2 + 1
+# 	print "idx: {}, len(X): {}".format(idx, len( U0[U0==1.0]))
+# 	# solver
+# 	for tt in range(tsteps - 1):
+# 		# boundary conditions
+# 		U[idx, :]     = rho2U(v2rho(BSB))
+# 		U[idx + 1, :] = rho2U(v2rho(ASB))
+
+# 		U[0, :]  = U[1, :]
+# 		U[-1, :] = U[-2, :]
+		
+# 		for xx in range(nsteps):
+# 			if method == 'Upwind_Method':
+# 				U[:, tt + 1] = Upwind_Method(F, FD, U[:, tt], k, h)
+# 			elif method == 'Mac_Cornack_scheme':
+# 				U[:, tt + 1] = Mac_Cornack_scheme(F, FD, U[:, tt], k, h)
+# 			elif method == 'Lax_Friedrichs_scheme':
+# 				U[:, tt + 1] = Lax_Friedrichs_scheme(F, FD, U[:, tt], k, h)
+# 			elif method == 'Richtmyer_two_step_Lax_Wendroff_scheme':
+# 				U[:, tt + 1] = Gudonov_Method(F, FD, FStarSolve, U[:, tt], k, h)
+# 			elif method == 'Gudonov_Method':
+# 				U[:, tt + 1] = Gudonov_Method(F, FD, FStarSolve, U[:, tt], k, h)
+
+# 		if tt % 200 == 0:
+# 			print "[INFO] tt: {}: Utt: {}".format(tt*k,list(U2rho(U[1:-1, tt])))
+
+
+# 	return U
 
 ###################################################################
 #                     Solve Burgers Equation                      #

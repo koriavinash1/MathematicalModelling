@@ -195,7 +195,6 @@ def find_solution(U0, T, nsteps, k, h, method='Gudonov_Method'):
 #                     Solve Burgers Equation                      #
 ###################################################################
 
-"""
 legend_array = []
 nsteps = int(len(X0)/h)
 U = find_solution(U0, Tmax, nsteps, k, h)
@@ -222,7 +221,6 @@ for tt in range(int(Tmax/k)):
         	# legend_array.append('t = {}'.format(tt*k))
 		# plt.legend(legend_array)	
 plt.show()
-"""
 
 import imageio
 import os

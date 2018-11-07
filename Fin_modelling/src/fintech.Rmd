@@ -1,0 +1,88 @@
+---
+title: "Financial Modelling"
+author: |
+ | Avinash Kori | ED15B006
+ | Engineering Design Department,
+ | Indian Institute of Technology, Madras
+ | koriavinash1@gmail.com
+output: 
+      pdf_document: default
+---
+```{r include=FALSE, cache=FALSE}
+library(MTS)
+library(vars)
+library(complexplus)
+```
+\tableofcontents{}
+\newpage
+\addtocontents{toc}{\setcounter{tocdepth}{3}}
+
+\section{Introduction}
+      In this case study various time series modelling methods are discussed along with R implementation for each of them. Main idea followed is to analyse the data, identify trend, seperate stationary part of the data, build model on that residual data. In this case study we model closing price for all the stocks. 
+      
+\section{Data}
+      In this case study 5 different pharmaceutical companies (on NSE India) were considered for analysis. Data obtained from yahoo finance starting from 6th November 2016 to 7th November 2018. Companies selected were:
+      
++ GlaxoSmithkline Pharmaceuticals Limited (GLAXO.NS)
+
++ Glenmark Pharmaceuticals Limited (GLENMARK.NS)
+
++ Aurobindo Pharma Limited (AUROPHARMA.NS)
+
++ Sun Pharmaceutical Industries Limited (SUNPHARMA.NS)
+
++ Alembic Pharmaceuticals Limited (APLLTD.NS)
+
+\section{Data Analysis}
+\subsection{Load csv data and print summary}
+```{R load data}
+loadCSVData <- function(path){
+  data = read.csv(path, header = TRUE)
+  print(summary(data$Close))
+  return(data$Close)
+}
+# example 
+data = NULL
+data$raw = loadCSVData('../Data/APLLTD/APLLTD.NS_daily.csv')
+```
+\subsection{Standardize the data}
+let $Y$ be the time-series data standardization involves converting the data to zero mean and unit standard deviation data: 
+$$Y = \frac{Y - \mu_Y}{\sigma_Y}$$
+```{R standardize}
+standardize <- function(data){
+  data = (data - mean(data)) / sd(data)
+  print(summary(data))
+  return(data)
+}
+
+# example 
+data$sd = standardize(data$raw)
+```
+
+\subsection{Analysis}
+```{R plot}
+boxcox <- function(y, lambda){
+  if (lambda != 0){
+    return((y^{lambda} - 1.0)/lambda)
+  }
+  else{
+    return(log(y))
+  }
+}
+
+# time series line plot
+plot(data$sd, type='l')
+
+# 1st order difference plot
+data$diff1 = diff(data$sd)
+plot(data$diff1, type='l')
+
+# ACF and PACF analysis of  diff1 data
+acf(data$diff1)
+pacf(data$diff1)
+```
+
+\subsection{Modelling}
+```{R}
+
+```

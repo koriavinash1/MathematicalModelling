@@ -1,0 +1,128 @@
+---
+title: "LS estimation of TS models"
+author: "Arun K. Tangirala"
+date: "17/11/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Unbiasedness of OLS estimates
+
+We shall first demonstrate that OLS produces unbiased estimates of AR model parameters when there is no model under-specification. 
+
+```{r unbiased}
+Nreal = 200; Nsamp = 1000;
+NULL -> parvec
+d1 = -1.2; d2 = 0.32;
+
+for (i in (1:Nreal))
+{
+  vk <- arima.sim(model=list(ar=c(-d1,-d2),order=c(2,0,0)),n=Nsamp)
+  armod <- ar.ols(vk,aic=F,order.max=2)
+  parvec <- cbind(parvec,armod$ar)
+}
+
+print(-rowMeans(parvec))
+var_theta <- apply(parvec,MARGIN=1,FUN=var)
+se_theta <- sqrt(var_theta)
+```
+
+It is clear that the OLS has delivered unbiased estimates of the model parameters. As a simple **exercise**, check that the variance values closely agree with the theoretical expressions.
+
+Let's generate the distribution of these estimates by plotting the histogram of estimates
+
+```{r Histogram of estimates}
+split.screen(c(1,2))
+screen(1)
+hist(parvec[1,],col="gray",xlab="d_1",main="Distribution of AR(1) coeff. estimate",prob=T)
+screen(2)
+hist(parvec[2,],col="green",xlab="d_2",main="Distribution of AR(1) coeff. estimate",prob=T)
+```
+
+Finally, we shall verify if we obtain *consistent* estimates of the parameters.
+
+```{r consistency}
+Nsampset = 10^(seq(from=1,to=6,by=0.25))
+d1 = -1.2; d2 = 0.32;
+NULL -> parvecN 
+vkN <- arima.sim(model=list(ar=c(-d1,-d2),order=c(2,0,0)),n=Nsampset[length(Nsampset)])
+
+for (j in 1:length(Nsampset))
+{
+  armodN <- ar.ols(vkN[1:Nsampset[j]],aic=F,order.max=2)
+  parvecN <- cbind(parvecN,armodN$ar)
+}
+
+print(parvecN)
+
+matplot(-t(parvecN),type='l',xlab='N',ylab="Parameter estimates")
+abline(h=d1,col='green')
+abline(h=d2,col='blue')
+```
+
+## Biased estimates of AR models
+
+The first case corresponds to a mis-specification (underfit) of the AR model to the effect that the "residual" terms are correlated with the regressors.
+
+```{r biased}
+Nreal = 200; Nsamp = 1000;
+NULL -> parvec1
+d1 = -1.2; d2 = 0.32;
+
+for (i in (1:Nreal))
+{
+  vk <- arima.sim(model=list(ar=c(-d1,-d2),order=c(2,0,0)),n=Nsamp)
+  armod <- ar.ols(vk,aic=F,order.max=1)
+  parvec1 <- cbind(parvec1,armod$ar)
+}
+
+print(rowMeans(parvec1))
+```
+
+Observe how the estimate turns out ot be biased when the "leftover" terms are correlated with the regressors. Truly speaking, it is inappropriate to compare these models because the truth is structurally different from the model.
+
+Let's turn our attention to the case where we have observations coming out of ARIMA models
+
+```{r biased with ARMA process}
+Nreal = 200; Nsamp = 1000;
+NULL -> parvec2
+d1 = -1.2; d2 = 0.32; c1 = 0.6;
+
+for (i in (1:Nreal))
+{
+  vk <- arima.sim(model=list(ar=c(-d1,-d2),ma=c1, order=c(2,0,1)),n=Nsamp)
+  armod2 <- ar.ols(vk,aic=F,order.max=2)
+  parvec2 <- cbind(parvec2,armod2$ar)
+}
+
+print(rowMeans(parvec2))
+```
+
+Residual analysis will however throw light (even in the earlier case) on the missing MA component in the model.
+
+```{r Residual analysis}
+acf(armod2$resid,main="ACF of residuals of the AR model",na.action=na.omit)
+# Raw estimate of PSD
+spec.pgram(armod2$resid,na.action=na.omit)
+# Parametric estimation
+spec.ar(armod2$resid,na.action=na.omit)
+```
+
+Finally, let's discuss the case of over-fitting. For this purpose, we return to the earlier AR(2) process, to which we fit an AR(6) model.
+
+```{r overfit}
+Nsamp = 1000;
+NULL -> parvec_of
+d1 = -1.2; d2 = 0.32;
+
+vk2 <- arima.sim(model=list(ar=c(-d1,-d2),order=c(2,0,0)),n=Nsamp)
+armod_of <- ar.ols(vk2,aic=F,order.max=6,demean=F,intercept=F)
+parvec_of <- cbind(parvec_of,armod_of$ar)
+
+print(parvec_of,digits=2)
+se_theta2 <- armod_of$asy.se.coef
+print(se_theta2,digits=3)
+```

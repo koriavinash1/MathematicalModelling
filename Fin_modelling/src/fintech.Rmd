@@ -73,7 +73,7 @@ boxcox <- function(y, lambda){
 }
 
 ```
-\subsection{Analysis of Alembic Pharmaceuticals Limited (APLLTD.NS)}
+\section{Analysis of Alembic Pharmaceuticals Limited (APLLTD.NS)}
 ```{R load data}
 aplltd = NULL
 aplltd$raw_daily = loadCSVData('../Data/APLLTD/APLLTD.NS_daily.csv')
@@ -89,64 +89,385 @@ plot(aplltd$sd_daily, type='l')
 plot(aplltd$sd_weekly, type='l')
 plot(aplltd$sd_monthly, type='l')
 
-# ACF analysis for sd data
-acf(aplltd$sd_daily)
-acf(aplltd$sd_weekly)
-acf(aplltd$sd_monthly)
+# Based on plots we can clearly see that given data is 
+# non stationary (data has some integrating effect, which should estimated)
+# which can be converted to stationary by taking difference of order = n
 
-# PACF analysis for sd data
-pacf(aplltd$sd_daily)
-pacf(aplltd$sd_weekly)
-pacf(aplltd$sd_monthly)
+aplltd$diff1_daily = diff(aplltd$sd_daily)
+aplltd$diff1_weekly = diff(aplltd$sd_weekly)
+aplltd$diff1_monthly = diff(aplltd$sd_monthly)
 
+# Plotting differenced data
+plot(aplltd$diff1_daily, type='l')
+plot(aplltd$diff1_weekly, type='l')
+plot(aplltd$diff1_monthly, type='l')
+
+# Differenced plots seems to be stationary this can also be verified by summary of the data
+print(summary(aplltd$diff1_daily))
+print(summary(aplltd$diff1_weekly))
+print(summary(aplltd$diff1_monthly))
 ```
++ Actual Raw data is non stationary
 
-+ By analysing acf plot it's clear that daily data has some integrating effect which can be removed by taking first order difference of the signal.
++ By analysing the data it's clear that some integrating effect exists, which can be removed by taking first order difference of the signal
 
-+ Weekly Data can be modelled using Moving Average model with lag=9
++ Stationary component of the data is estimated using first order difference of the time series
 
-+ Monthly Data can be modelled using MA model with lag = 1
++ Resulting plot after removing integrating effect are stationary 
+
+
+\subsection{Trend Estimation}
+In this section we'll try to seperate predictable part of the series from random white noise. This is acheved using ACF PACF analysis.
 
 \subsubsection{Daily Series}
 ```{R Daily Series}
-aplltd$diff1 = diff(aplltd$sd_daily)
-plot(aplltd$diff1, type='l')
-# plot visually seems to be random stationary signal which can be 
-# therotically proved by plotting acf and pacf of signal
-acf(aplltd$diff1)
-pacf(aplltd$diff1)
-# As ACF and PACF are inbetween significant bands shows that signal 
+acf(aplltd$diff1_daily)
+pacf(aplltd$diff1_daily)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
 # is random (i.e there exists no trend to model) and stationary
 ```
-Daily data has no trend to exploit, Signal can be transformed to stationary signal by taking first order difference, which is illustrated in above plots.
 
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
 
 \subsubsection{Weekly Series}
 ```{R Weekly Series}
-aplltd$weekly_model = arima (aplltd$sd_weekly, order = c(0,0,9), include.mean = T)
-print(summary(aplltd$weekly_model))
-# residual analysis
-plot(aplltd$weekly_model$residuals)
-# plot visually seems to be random stationary signal which can be 
-# therotically proved by plotting acf and pacf of signal
-acf(aplltd$weekly_model$residuals)
-pacf(aplltd$weekly_model$residuals)
-# As ACF and PACF are inbetween significant bands shows that residual signal stationary
+acf(aplltd$diff1_weekly)
+pacf(aplltd$diff1_weekly)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
 ```
 
-Weekly data has moving average (lag=9) trend which can be exploited, MA residuals form a stationary signal
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
 
 \subsubsection{Monthly Series}
 ```{R Monthly Series}
-aplltd$monthly_model = arima (aplltd$sd_weekly, order = c(0,0,1), include.mean = T)
-print(summary(aplltd$monthly_model))
-# residual analysis
-plot(aplltd$monthly_model$residuals)
-# plot visually seems to be random stationary signal which can be 
-# therotically proved by plotting acf and pacf of signal
-acf(aplltd$monthly_model$residuals)
-pacf(aplltd$monthly_model$residuals)
-# As ACF and PACF are inbetween significant bands shows that residual signal stationary
+acf(aplltd$diff1_monthly)
+pacf(aplltd$diff1_monthly)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
 ```
 
-Monthly data has moving average (lag=1) trend which can be exploited, MA residuals form a stationary signal
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
+*** 
+
+\section{Sun Pharmaceutical Industries Limited (SUNPHARMA.NS)}
+```{R load data1}
+sunpharma = NULL
+sunpharma$raw_daily = loadCSVData('../Data/SUNPHARMA/SUNPHARMA.NS_daily.csv')
+sunpharma$raw_weekly = loadCSVData('../Data/SUNPHARMA/SUNPHARMA.NS_weekly.csv')
+sunpharma$raw_monthly = loadCSVData('../Data/SUNPHARMA/SUNPHARMA.NS_monthly.csv')
+
+sunpharma$sd_daily = standardize(sunpharma$raw_daily)
+sunpharma$sd_weekly = standardize(sunpharma$raw_weekly)
+sunpharma$sd_monthly = standardize(sunpharma$raw_monthly)
+
+# plot all the data
+plot(sunpharma$sd_daily, type='l')
+plot(sunpharma$sd_weekly, type='l')
+plot(sunpharma$sd_monthly, type='l')
+
+# Based on plots we can clearly see that given data is 
+# non stationary (data has some integrating effect, which should estimated)
+# which can be converted to stationary by taking difference of order = n
+
+sunpharma$diff1_daily = diff(sunpharma$sd_daily)
+sunpharma$diff1_weekly = diff(sunpharma$sd_weekly)
+sunpharma$diff1_monthly = diff(sunpharma$sd_monthly)
+
+# Plotting differenced data
+plot(sunpharma$diff1_daily, type='l')
+plot(sunpharma$diff1_weekly, type='l')
+plot(sunpharma$diff1_monthly, type='l')
+
+# Differenced plots seems to be stationary this can also be verified by summary of the data
+print(summary(sunpharma$diff1_daily))
+print(summary(sunpharma$diff1_weekly))
+print(summary(sunpharma$diff1_monthly))
+```
++ Actual Raw data is non stationary
+
++ By analysing the data it's clear that some integrating effect exists, which can be removed by taking first order difference of the signal
+
++ Stationary component of the data is estimated using first order difference of the time series
+
++ Resulting plot after removing integrating effect are stationary 
+
+
+\subsection{Trend Estimation}
+In this section we'll try to seperate predictable part of the series from random white noise. This is acheved using ACF PACF analysis.
+
+\subsubsection{Daily Series}
+```{R Daily Series1}
+acf(sunpharma$diff1_daily)
+pacf(sunpharma$diff1_daily)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
+```
+
++ As it can be seen that pacf at lag = 20 exceeds significant bounds, which means Autoregressive model AR(20) can fit the data
+```{R AR(20) analysis}
+sunpharma$ar20_daily = arima(sunpharma$diff1_daily, order=c(20,0,0))
+
+# ACF of residuals should be white if model captures entire information
+acf(sunpharma$ar20_daily$residuals)
+pacf(sunpharma$ar20_daily$residuals)
+```
+
++ By fitting AR(20) model predictable component of the data is exploited, residuals obtained forms white noise 
+
++ Auto regressive trend is followed in case of Daily data, Data can be made stationary after considering first order difference 
+
+\subsubsection{Weekly Series}
+```{R Weekly Series1}
+acf(sunpharma$diff1_weekly)
+pacf(sunpharma$diff1_weekly)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
+```
+
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
+\subsubsection{Monthly Series}
+```{R Monthly Series1}
+acf(sunpharma$diff1_monthly)
+pacf(sunpharma$diff1_monthly)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
+```
+
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
+***
+
+\section{Aurobindo Pharma Limited (AUROPHARMA.NS)}
+```{R load data2}
+auropharma = NULL
+auropharma$raw_daily = loadCSVData('../Data/AUROPHARMA/AUROPHARMA.NS_daily.csv')
+auropharma$raw_weekly = loadCSVData('../Data/AUROPHARMA/AUROPHARMA.NS_weekly.csv')
+auropharma$raw_monthly = loadCSVData('../Data/AUROPHARMA/AUROPHARMA.NS_monthly.csv')
+
+auropharma$sd_daily = standardize(auropharma$raw_daily)
+auropharma$sd_weekly = standardize(auropharma$raw_weekly)
+auropharma$sd_monthly = standardize(auropharma$raw_monthly)
+
+# plot all the data
+plot(auropharma$sd_daily, type='l')
+plot(auropharma$sd_weekly, type='l')
+plot(auropharma$sd_monthly, type='l')
+
+# Based on plots we can clearly see that given data is 
+# non stationary (data has some integrating effect, which should estimated)
+# which can be converted to stationary by taking difference of order = n
+
+auropharma$diff1_daily = diff(auropharma$sd_daily)
+auropharma$diff1_weekly = diff(auropharma$sd_weekly)
+auropharma$diff1_monthly = diff(auropharma$sd_monthly)
+
+# Plotting differenced data
+plot(auropharma$diff1_daily, type='l')
+plot(auropharma$diff1_weekly, type='l')
+plot(auropharma$diff1_monthly, type='l')
+
+# Differenced plots seems to be stationary this can also be verified by summary of the data
+print(summary(auropharma$diff1_daily))
+print(summary(auropharma$diff1_weekly))
+print(summary(auropharma$diff1_monthly))
+```
++ Actual Raw data is non stationary
+
++ By analysing the data it's clear that some integrating effect exists, which can be removed by taking first order difference of the signal
+
++ Stationary component of the data is estimated using first order difference of the time series
+
++ Resulting plot after removing integrating effect are stationary 
+
+
+\subsection{Trend Estimation}
+In this section we'll try to seperate predictable part of the series from random white noise. This is acheved using ACF PACF analysis.
+
+\subsubsection{Daily Series}
+```{R Daily Series2}
+acf(auropharma$diff1_daily)
+pacf(auropharma$diff1_daily)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
+```
+
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
+\subsubsection{Weekly Series}
+```{R Weekly Series2}
+acf(auropharma$diff1_weekly)
+pacf(auropharma$diff1_weekly)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
+```
+
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
+\subsubsection{Monthly Series}
+```{R Monthly Series3}
+acf(auropharma$diff1_monthly)
+pacf(auropharma$diff1_monthly)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
+```
+
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
+***
+
+\section{GlaxoSmithkline Pharmaceuticals Limited (GLAXO.NS)}
+```{R load data3}
+glaxo = NULL
+glaxo$raw_daily = loadCSVData('../Data/GLAXO/GLAXO.NS_daily.csv')
+glaxo$raw_weekly = loadCSVData('../Data/GLAXO/GLAXO.NS_weekly.csv')
+glaxo$raw_monthly = loadCSVData('../Data/GLAXO/GLAXO.NS_monthly.csv')
+
+glaxo$sd_daily = standardize(glaxo$raw_daily)
+glaxo$sd_weekly = standardize(glaxo$raw_weekly)
+glaxo$sd_monthly = standardize(glaxo$raw_monthly)
+
+# plot all the data
+plot(glaxo$sd_daily, type='l')
+plot(glaxo$sd_weekly, type='l')
+plot(glaxo$sd_monthly, type='l')
+
+# Based on plots we can clearly see that given data is 
+# non stationary (data has some integrating effect, which should estimated)
+# which can be converted to stationary by taking difference of order = n
+
+glaxo$diff1_daily = diff(glaxo$sd_daily)
+glaxo$diff1_weekly = diff(glaxo$sd_weekly)
+glaxo$diff1_monthly = diff(glaxo$sd_monthly)
+
+# Plotting differenced data
+plot(glaxo$diff1_daily, type='l')
+plot(glaxo$diff1_weekly, type='l')
+plot(glaxo$diff1_monthly, type='l')
+
+# Differenced plots seems to be stationary this can also be verified by summary of the data
+print(summary(glaxo$diff1_daily))
+print(summary(glaxo$diff1_weekly))
+print(summary(glaxo$diff1_monthly))
+```
++ Actual Raw data is non stationary
+
++ By analysing the data it's clear that some integrating effect exists, which can be removed by taking first order difference of the signal
+
++ Stationary component of the data is estimated using first order difference of the time series
+
++ Resulting plot after removing integrating effect are stationary 
+
+
+\subsection{Trend Estimation}
+In this section we'll try to seperate predictable part of the series from random white noise. This is acheved using ACF PACF analysis.
+
+\subsubsection{Daily Series}
+```{R Daily Series4}
+acf(glaxo$diff1_daily)
+pacf(glaxo$diff1_daily)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
+```
+
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
+\subsubsection{Weekly Series}
+```{R Weekly Series5}
+acf(glaxo$diff1_weekly)
+pacf(glaxo$diff1_weekly)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
+```
+
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
+\subsubsection{Monthly Series}
+```{R Monthly Series6}
+acf(glaxo$diff1_monthly)
+pacf(glaxo$diff1_monthly)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
+```
+
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
+***
+
+\section{Glenmark Pharmaceuticals Limited (GLENMARK.NS)}
+```{R load data5}
+glenmark = NULL
+glenmark$raw_daily = loadCSVData('../Data/GLENMARK/GLENMARK.NS_daily.csv')
+glenmark$raw_weekly = loadCSVData('../Data/GLENMARK/GLENMARK.NS_weekly.csv')
+glenmark$raw_monthly = loadCSVData('../Data/GLENMARK/GLENMARK.NS_monthly.csv')
+
+glenmark$sd_daily = standardize(glenmark$raw_daily)
+glenmark$sd_weekly = standardize(glenmark$raw_weekly)
+glenmark$sd_monthly = standardize(glenmark$raw_monthly)
+
+# plot all the data
+plot(glenmark$sd_daily, type='l')
+plot(glenmark$sd_weekly, type='l')
+plot(glenmark$sd_monthly, type='l')
+
+# Based on plots we can clearly see that given data is 
+# non stationary (data has some integrating effect, which should estimated)
+# which can be converted to stationary by taking difference of order = n
+
+glenmark$diff1_daily = diff(glenmark$sd_daily)
+glenmark$diff1_weekly = diff(glenmark$sd_weekly)
+glenmark$diff1_monthly = diff(glenmark$sd_monthly)
+
+# Plotting differenced data
+plot(glenmark$diff1_daily, type='l')
+plot(glenmark$diff1_weekly, type='l')
+plot(glenmark$diff1_monthly, type='l')
+
+# Differenced plots seems to be stationary this can also be verified by summary of the data
+print(summary(glenmark$diff1_daily))
+print(summary(glenmark$diff1_weekly))
+print(summary(glenmark$diff1_monthly))
+```
++ Actual Raw data is non stationary
+
++ By analysing the data it's clear that some integrating effect exists, which can be removed by taking first order difference of the signal
+
++ Stationary component of the data is estimated using first order difference of the time series
+
++ Resulting plot after removing integrating effect are stationary 
+
+
+\subsection{Trend Estimation}
+In this section we'll try to seperate predictable part of the series from random white noise. This is acheved using ACF PACF analysis.
+
+\subsubsection{Daily Series}
+```{R Daily Series5}
+acf(glenmark$diff1_daily)
+pacf(glenmark$diff1_daily)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
+```
+
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
+\subsubsection{Weekly Series}
+```{R Weekly Series4}
+acf(glenmark$diff1_weekly)
+pacf(glenmark$diff1_weekly)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
+```
+
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
+\subsubsection{Monthly Series}
+```{R Monthly Series4}
+acf(glenmark$diff1_monthly)
+pacf(glenmark$diff1_monthly)
+# As ACF and PACF are inbetween significant bands, this shows that signal 
+# is random (i.e there exists no trend to model) and stationary
+```
+
++ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.

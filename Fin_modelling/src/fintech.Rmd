@@ -643,4 +643,27 @@ profit = findProfit(aplltd$raw_daily, sunpharma$raw_daily, index)
 print(paste0("[INFO] Number of trading instances: ", floor(length(index)/2)))
 print(paste0("[INFO] Profit made per stock by following the statistic is given by: Rs. ", profit))
 ```
+\section{Code availability and structure}
+This Report comes with a dedicated GitHub repository where all codes, animations and  pre-trained models will be uploaded. \newline
+({https://github.com/koriavinash1/MathematicalModelling/Fin_modelling})\\
 
+Folder Structure of Code:
+
++ Fin_modelling
+  
+  + refeences
+  
+  + Data
+  
+  + Reports
+  
+  + src
+  
+    + fintech.Rmd
+    
+\section{Acknowledgements}
+All the codes are implemented using opensource libraries in R:
+
++ Only academic references (class report) were used in formulating all the experiments in this report
+
++ Applied Time-series Analysis CH5350 class notes 

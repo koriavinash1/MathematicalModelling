@@ -294,7 +294,20 @@ pacf(auropharma$diff1_daily)
 # is random (i.e there exists no trend to model) and stationary
 ```
 
-+ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
++ As it can be seen that acf and pacf at lag = 18 exceeds significant bounds, which means Autoregressive model ARMA(18,18) can fit the data
+
+```{R ARMA(20) analysis}
+auropharma$arma18_18_daily = arima(auropharma$diff1_daily, order=c(18,0,18))
+
+# ACF of residuals should be white if model captures entire information
+acf(auropharma$arma18_18_daily$residuals)
+pacf(auropharma$arma18_18_daily$residuals)
+```
+
++ By fitting ARMA(18, 18) model predictable component of the data is exploited, residuals obtained forms white noise 
+
++ AMA trend is followed in case of Daily data, Data can be made stationary after considering first order difference 
+
 
 \subsubsection{Weekly Series}
 ```{R Weekly Series2}
@@ -372,7 +385,20 @@ pacf(glaxo$diff1_daily)
 # is random (i.e there exists no trend to model) and stationary
 ```
 
-+ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
++ As it can be seen that acf and pacf at lag = 1 exceeds significant bounds, which means Autoregressive model ARMA(1, 1) can fit the data
+
+```{R ARMA(1, 1) analysis}
+glaxo$arma1_daily = arima(glaxo$diff1_daily, order=c(1,0,1))
+
+# ACF of residuals should be white if model captures entire information
+acf(glaxo$arma1_daily$residuals)
+pacf(glaxo$arma1_daily$residuals)
+```
+
++ By fitting ARMA(1,1) model predictable component of the data is exploited, residuals obtained forms white noise 
+
++ ARMA trend is followed in case of Daily data, Data can be made stationary after considering first order difference 
 
 \subsubsection{Weekly Series}
 ```{R Weekly Series5}
@@ -450,7 +476,20 @@ pacf(glenmark$diff1_daily)
 # is random (i.e there exists no trend to model) and stationary
 ```
 
-+ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
++ As it can be seen that acf and pacf at lag = 1 and 12 respectively exceeds significant bounds, which means Autoregressive model ARMA(12, 1) can fit the data
+
+```{R ARMA(12, 1) analysis}
+glenmark$arma12_1_daily = arima(glaxo$diff1_daily, order=c(12,0,1))
+
+# ACF of residuals should be white if model captures entire information
+acf(glenmark$arma12_1_daily$residuals)
+pacf(glenmark$arma12_1_daily$residuals)
+```
+
++ By fitting ARMA(12,1) model predictable component of the data is exploited, residuals obtained forms white noise 
+
++ ARMA trend is followed in case of Daily data, Data can be made stationary after considering first order difference 
+
 
 \subsubsection{Weekly Series}
 ```{R Weekly Series4}
@@ -460,7 +499,19 @@ pacf(glenmark$diff1_weekly)
 # is random (i.e there exists no trend to model) and stationary
 ```
 
-+ As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
++ As it can be seen that acf and pacf at lag = 1 and 12 respectively exceeds significant bounds, which means Autoregressive model ARMA(12, 1) can fit the data
+
+```{R ARMA(12, 1) analysis1}
+glenmark$arma12_1_weekly = arima(glaxo$diff1_weekly, order=c(12,0,1))
+
+# ACF of residuals should be white if model captures entire information
+acf(glenmark$arma12_1_weekly$residuals)
+pacf(glenmark$arma12_1_weekly$residuals)
+```
+
++ By fitting ARMA(12,1) model predictable component of the data is exploited, residuals obtained forms white noise 
+
++ ARMA trend is followed in case of Daily data, Data can be made stationary after considering first order difference 
 
 \subsubsection{Monthly Series}
 ```{R Monthly Series4}
@@ -471,3 +522,83 @@ pacf(glenmark$diff1_monthly)
 ```
 
 + As it can be seen that acf at any lag is bounded by significant limits, which means that the stationary series obtained after taking first order difference is white noise.
+
+***
+\section {Data Correlation}
+Based on above analysis it can be seen that time series with daily frequency has predictable trend in this section, correlation between multiple companies are estiamtes to find the best trading pairs.
+
+```{r corr}
+data = c()
+data$aplltd = aplltd$sd_daily
+data$auropharma = auropharma$sd_daily
+data$glaxo = glaxo$sd_daily
+data$glenmark = glenmark$sd_daily
+data$sunpharma = sunpharma$sd_daily
+
+print(cor(data.frame(data)))
+```
+
+Based on correlation matrix it can clearly oberved that best pairs to consider are:
+
++ APLLTD \& SUNPHARMA (corr = 0.8423)
+
++ GLENMARK \& SUNPHARMA (corr = 0.8175)
+
+\subsection{APLLTD \& SUNPHARMA}
+\subsubsection{Threshold estimation}
+```{R plots}
+plot(data$aplltd[0:360], type='l', col='red')
+lines(data$sunpharma[0:360], type='l', col='green')
+
+spread_p1_train = data$aplltd[0:360] - data$sunpharma[0:360] 
+threshold = 1.0*sd(spread_p1_train)
+
+smoothen = filter(spread_p1_train, rep(1/20, 20), circular = T)
+plot(smoothen, type='l', col='green')
+lines(rep(threshold, length(smoothen)) , col='red')
+lines(rep(-1*threshold, length(smoothen)) , col='red')
+```
+\subsubsection{Testing}
+```{R test}
+spread_p1_test = data$aplltd[360:490] - data$sunpharma[360:490]
+
+smoothen_test = filter(spread_p1_test, rep(1/5, 5), circular = T)
+plot(smoothen_test, type='l', col='green')
+lines(rep(threshold, length(smoothen_test)) , col='red')
+lines(rep(-1*threshold, length(smoothen_test)) , col='red')
+```
+
++ As it can be observed from the plot that there are 2 trading instances (around 30 and 80), which results in profit
+
++ Returns can be about bb %
+
+
+\subsection{GLENMARK \& SUNPHARMA}
+\subsubsection{Threshold estimation}
+```{R}
+plot(data$glenmark[0:360], type='l', col='red')
+lines(data$sunpharma[0:360], type='l', col='green')
+
+spread_p1_train = data$glenmark[0:360] - data$sunpharma[0:360] 
+threshold = 1.0*sd(spread_p1_train)
+
+smoothen = filter(spread_p1_train, rep(1/20, 20), circular = T)
+plot(smoothen, type='l', col='green')
+lines(rep(threshold, length(smoothen)) , col='red')
+lines(rep(-1*threshold, length(smoothen)) , col='red')
+```
+
+
+\subsubsection{Testing}
+```{r}
+spread_p1_test = data$glenmark[360:490] - data$sunpharma[360:490]
+
+smoothen_test = filter(spread_p1_test, rep(1/5, 5), circular = T)
+plot(smoothen_test, type='l', col='green')
+lines(rep(threshold, length(smoothen_test)) , col='red')
+lines(rep(-1*threshold, length(smoothen_test)) , col='red')
+```
+
++ As it can be observed from the plot that there are 2 trading instances (around 20 and 100), which results in profit
+
++ Returns can be about aa%

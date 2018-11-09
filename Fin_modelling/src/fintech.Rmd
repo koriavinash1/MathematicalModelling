@@ -543,7 +543,41 @@ Based on correlation matrix it can clearly oberved that best pairs to consider a
 + APLLTD \& SUNPHARMA (corr = 0.8423)
 
 + GLENMARK \& SUNPHARMA (corr = 0.8175)
+```{r}
+findCrossOverIndex <- function(data, threshold, window = 10){
+  index_data = (data < -1*threshold) + (data > threshold) 
+  index = NULL
+  count = 0
+  prev = FALSE
+  for (ii in seq(1, length(index_data))){
+    if (index_data[ii] && count == 0){
+      prev = TRUE
+      count = count + 1
+    }
+    else if (index_data[ii] && prev){
+      count = count + 1
+    }
+    else{
+      if (count > window){
+        index = append(index, c(ii, count))
+      }
+      count = 0
+      prev = FALSE
+    }
+  }
+  return(index)
+}
 
+findProfit = function(comp1, comp2, idx, lower = 360){
+  profit = 0
+  for (ii in seq(1, floor(length(idx)/2))){
+    pidx = lower + idx[2*ii - 1] - floor(idx[2*ii]/2)
+    print (c(pidx, idx[2*ii-1], floor(idx[2*ii]/2)))
+    profit = profit + abs(comp1[pidx] - comp2[pidx])
+  }
+  return (profit)
+}
+```
 \subsection{APLLTD \& SUNPHARMA}
 \subsubsection{Threshold estimation}
 ```{R plots}
@@ -558,6 +592,7 @@ plot(smoothen, type='l', col='green')
 lines(rep(threshold, length(smoothen)) , col='red')
 lines(rep(-1*threshold, length(smoothen)) , col='red')
 ```
+
 \subsubsection{Testing}
 ```{R test}
 spread_p1_test = data$aplltd[360:490] - data$sunpharma[360:490]
@@ -566,11 +601,14 @@ smoothen_test = filter(spread_p1_test, rep(1/5, 5), circular = T)
 plot(smoothen_test, type='l', col='green')
 lines(rep(threshold, length(smoothen_test)) , col='red')
 lines(rep(-1*threshold, length(smoothen_test)) , col='red')
+
+# net profit estimate per stock
+index = findCrossOverIndex(smoothen_test, threshold, window = 10)
+profit = findProfit(aplltd$raw_daily, sunpharma$raw_daily, index)
+
+print(paste0("[INFO] Number of trading instances: ", floor(length(index)/2)))
+print(paste0("[INFO] Profit made per stock by following the statistic is given by: Rs. ", profit))
 ```
-
-+ As it can be observed from the plot that there are 2 trading instances (around 30 and 80), which results in profit
-
-+ Returns can be about bb %
 
 
 \subsection{GLENMARK \& SUNPHARMA}
@@ -597,8 +635,12 @@ smoothen_test = filter(spread_p1_test, rep(1/5, 5), circular = T)
 plot(smoothen_test, type='l', col='green')
 lines(rep(threshold, length(smoothen_test)) , col='red')
 lines(rep(-1*threshold, length(smoothen_test)) , col='red')
+
+# net profit estimate per stock
+index = findCrossOverIndex(smoothen_test, threshold, window = 5)
+profit = findProfit(aplltd$raw_daily, sunpharma$raw_daily, index)
+
+print(paste0("[INFO] Number of trading instances: ", floor(length(index)/2)))
+print(paste0("[INFO] Profit made per stock by following the statistic is given by: Rs. ", profit))
 ```
 
-+ As it can be observed from the plot that there are 2 trading instances (around 20 and 100), which results in profit
-
-+ Returns can be about aa%

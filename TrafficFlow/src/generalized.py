@@ -176,13 +176,16 @@ def find_solution(rho0,
 			if tlp:
 				if sbp > tlp: 
 					if toggle and tt > tsteps//2:
-						rho[int(sbp/h) + 1, :] = rho2U(ASB) 
+						rho[int(sbp/h) + 1, :] = 0.55 
 					else: 
 						rho[int(sbp/h) + 1, :] = rho2U(0) 
 				else:  
 					rho[int(sbp/h), :] = rho2U(BSB) 
-			else: 
-				rho[int(sbp/h) + 1, :] = rho2U(ASB)
+			else:
+				if toggle and tt > tsteps//2:
+					rho[int(sbp/h) + 1, :] = rho2U(ASB)
+				else:
+					rho[int(sbp/h) + 1, :] = 0.55 
 
 		rho[0, :]  = rho[1, :]
 		rho[-1, :] = rho[-2, :]
@@ -214,8 +217,8 @@ legend_array = []
 nsteps = len(X0)
 Toggle = True
 rho = find_solution(rho0, Tmax, nsteps, k, h, 
-					sbp = 0.2, 
-					tlp = 0.5,
+					sbp = 0.5, 
+					tlp = 0.2,
 					toggle = Toggle)
 
 
@@ -249,4 +252,4 @@ for tt in range(int(Tmax/k)):
     # if file_name.endswith('.png'):
     file_path = os.path.join(png_dir, str(tt) + '.png')
     images.append(imageio.imread(file_path))
-imageio.mimsave('../imgs/tl-sb1-movie.gif', images, fps=50)
+imageio.mimsave('../imgs/tl-sb-movie.gif', images, fps=50)

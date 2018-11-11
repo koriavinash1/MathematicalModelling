@@ -170,22 +170,17 @@ def find_solution(rho0,
 				rho[int(tlp/h) + 1, :] = rho2U(AL)
 
 		if sbp:
-			if toggle and tt > tsteps//2:
-				if tlp:
-					if sbp > tlp: 
+			
+			if tlp:
+				if sbp > tlp: 
+					if toggle and tt > tsteps//2:
 						rho[int(sbp/h) + 1, :] = rho2U(ASB) 
-					else:  
-						rho[int(sbp/h), :] = rho2U(BSB) 
-				else: 
-					rho[int(sbp/h) + 1, :] = rho2U(ASB/2.)
-			else:
-				if tlp:
-					if sbp > tlp: 
+					else: 
 						rho[int(sbp/h) + 1, :] = rho2U(0) 
-					else:  
-						rho[int(sbp/h), :] = rho2U(BSB) 
-				else: 
-					rho[int(sbp/h) + 1, :] = rho2U(ASB)
+				else:  
+					rho[int(sbp/h), :] = rho2U(BSB) 
+			else: 
+				rho[int(sbp/h) + 1, :] = rho2U(ASB)
 
 		rho[0, :]  = rho[1, :]
 		rho[-1, :] = rho[-2, :]
@@ -217,7 +212,8 @@ legend_array = []
 nsteps = len(X0)
 Toggle = True
 rho = find_solution(rho0, Tmax, nsteps, k, h, 
-					sbp = 0.5, tlp = 0.2, 
+					sbp = 0.5, 
+					tlp = 0.2,
 					toggle = Toggle)
 
 
@@ -240,7 +236,7 @@ for tt in range(int(Tmax/k)):
 	plt.ylabel('density')
 	plt.savefig('../imgs/tl-sb-gif/'+str(tt)+'.png')
 	if tt % 100 == 99: 
-	    plt.savefig('../imgs/tl-sb-'+str(tt)+'.png')
+		plt.savefig('../imgs/tl-sb-'+str(tt)+'.png')
 
 
 import imageio

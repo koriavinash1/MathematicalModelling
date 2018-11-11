@@ -35,9 +35,9 @@ end
 if verbose
 fig = figure(verbose);
 subplot(1,2,1); imshow(f,[]); 
-title('Original Image');
+title('Input Image');
 subplot(1,2,2); imshow(g,[]);
-title('Coherence Enhancing Diffusion');
+title('Unsharped EED');
 saveas(fig, name);
 end
 end

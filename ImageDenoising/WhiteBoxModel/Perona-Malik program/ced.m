@@ -1,5 +1,7 @@
 function U = ced( L, ref, k, upscale, scale, stepsize, nosteps, verbose, ip, name)
 % ced: coherence enhancing diffusion
+ip
+name
 U = L;
 for i = 1:nosteps
 Ux = gD( U, upscale, 1, 0 );
@@ -24,7 +26,7 @@ end
 if verbose
 fig = figure(verbose);
 subplot(1,2,1); imshow(L,[]); 
-title('Original Image');
+title('Input Image');
 subplot(1,2,2); imshow(U,[]);
 title('Coherence Enhancing Diffusion');
 saveas(fig, name);

@@ -180,7 +180,5 @@ switch val
 
       r=-1/8*J1mp+1/8*J1pp-2/8*J1mc+2/8*J1pc-1/8*J1mm+1/8*J1pm+1/8*J2mp+2/8*J2cp+1/8*J2pp-1/8*J2mm-2/8*J2cm-1/8*J2pm;
 
-        otherwise disp('invalid choice')
+      otherwise disp('invalid choice')
 end
-
-

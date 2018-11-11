@@ -21,9 +21,9 @@ function U = eed( L, ref, k, uscale, stepsize, nosteps, verbose, ip, name)
 if verbose
 fig = figure(verbose);
 subplot(1,2,1); imshow(L,[]); 
-title('Original Image');
+title('Input Image');
 subplot(1,2,2); imshow(U,[]);
 title('Edge Enhancing Diffusion');
-% saveas(fig, name);
+saveas(fig, name);
 end
 end

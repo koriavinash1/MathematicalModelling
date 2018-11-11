@@ -26,7 +26,7 @@ for i=1:length(images)
   alpha=2.7; % Used in Numerical approximation
   w= exp(4*alpha/9); % Used in Numerical approximation
 
-  b=unsharpedEED(ad,ref,0.001,timestep,Niter,0,w,1, strcat("unsharpedEED_", images{i})); 
+  b=unsharpedEED(ad,ref,0.001,timestep,Niter,1,w,1, strcat("unsharpedEED_", images{i})); 
   MI_array = cat(1, MI_array, MI(ref, b));
   MSE_array = cat(1, MSE_array, MSE(ref, b));
   SSIM_array = cat(1, SSIM_array, ssim_index(ref, b)(1));

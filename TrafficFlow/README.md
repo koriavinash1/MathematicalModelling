@@ -11,3 +11,8 @@
 ### Traffic Light and speed breaker effect on flow
 
 ![traffic_light](https://github.com/koriavinash1/MathematicalModelling/blob/master/TrafficFlow/imgs/tl-sb-movie.gif)
+
+
+### Speed breaker and Traffic Light effect on flow
+
+![traffic_light](https://github.com/koriavinash1/MathematicalModelling/blob/master/TrafficFlow/imgs/tl-sb1-movie.gif)

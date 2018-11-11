@@ -29,6 +29,7 @@ T      = np.linspace(Tmin, Tmax, int((Tmax - Tmin)/deltaT))
 # U_t + F(U(X,t))_x = 0
 # U(X, T) is constant
 
+
 # initilize F
 rhoMax = 1.0
 rhoMin = 0.1
@@ -129,6 +130,7 @@ def Gudonov_Method(F, FD, FStarSolve, U, k, h, sb=False):
 		elif (FD(up1) >= 0) and (FD(u) < 0):
 			return FStarSolve(u)
 
+
 	temp = np.zeros_like(U)
 	for i in range(1, len(U) - 1):
 		temp[i] = U[i] -(k/h)*(F(Ustar(U[i], U[i+1])) - F(Ustar(U[i-1], U[i])))
@@ -150,7 +152,7 @@ def find_solution(rho0,
 				sbp = None, 
 				tlp = None, 
 				toggle = True, 
-				method='Gudonov_Method'):
+				method = 'Gudonov_Method'):
 
 	tsteps = int(T/k) + 1
 	rho = np.zeros((len(rho0), tsteps))
@@ -212,8 +214,8 @@ legend_array = []
 nsteps = len(X0)
 Toggle = True
 rho = find_solution(rho0, Tmax, nsteps, k, h, 
-					sbp = 0.5, 
-					tlp = 0.2,
+					sbp = 0.2, 
+					tlp = 0.5,
 					toggle = Toggle)
 
 
@@ -247,4 +249,4 @@ for tt in range(int(Tmax/k)):
     # if file_name.endswith('.png'):
     file_path = os.path.join(png_dir, str(tt) + '.png')
     images.append(imageio.imread(file_path))
-imageio.mimsave('../imgs/tl-sb-movie.gif', images, fps=50)
+imageio.mimsave('../imgs/tl-sb1-movie.gif', images, fps=50)

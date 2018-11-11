@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 ###################################################################
 k = 0.005
 h = 0.05
-Tmax = 3.0
+Tmax = 1.0
 
 Xmin   = 0.
 Xmax   = 1.0
@@ -170,11 +170,22 @@ def find_solution(rho0,
 				rho[int(tlp/h) + 1, :] = rho2U(AL)
 
 		if sbp:
-			if tlp:
-				if sbp > tlp: rho[int(sbp/h) + 1, :] = rho2U(0) 
-				else:  rho[int(sbp/h), :] = rho2U(BSB) 
-
-			else: rho[int(sbp/h) + 1, :] = rho2U(ASB)
+			if toggle and tt > tsteps//2:
+				if tlp:
+					if sbp > tlp: 
+						rho[int(sbp/h) + 1, :] = rho2U(ASB) 
+					else:  
+						rho[int(sbp/h), :] = rho2U(BSB) 
+				else: 
+					rho[int(sbp/h) + 1, :] = rho2U(ASB/2.)
+			else:
+				if tlp:
+					if sbp > tlp: 
+						rho[int(sbp/h) + 1, :] = rho2U(0) 
+					else:  
+						rho[int(sbp/h), :] = rho2U(BSB) 
+				else: 
+					rho[int(sbp/h) + 1, :] = rho2U(ASB)
 
 		rho[0, :]  = rho[1, :]
 		rho[-1, :] = rho[-2, :]
@@ -204,31 +215,40 @@ def find_solution(rho0,
 
 legend_array = []
 nsteps = len(X0)
+Toggle = True
 rho = find_solution(rho0, Tmax, nsteps, k, h, 
 					sbp = 0.5, tlp = 0.2, 
-					toggle = True)
+					toggle = Toggle)
 
 
 plt.ion()
 for tt in range(int(Tmax/k)):
 	plt.clf()
-	plt.plot(X0[1:-1], U2rho(rho[1:-1, tt]))
-	plt.title("Speed Breaker: {}/{}".format(tt,int(Tmax/k)))
+	if Toggle:
+		if tt > int(Tmax/k)//2:
+			plt.plot(X0[1:-1], U2rho(rho[1:-1, tt]), 'g')
+			plt.title("Speed Breaker + GREEN Light: {}/{}".format(tt,int(Tmax/k)))
+		else:
+			plt.plot(X0[1:-1], U2rho(rho[1:-1, tt]), 'r')
+			plt.title("Speed Breaker + RED Light: {}/{}".format(tt,int(Tmax/k)))
+	else:
+		plt.plot(X0[1:-1], U2rho(rho[1:-1, tt]))
+		plt.title("Speed Breaker + Traffic Light: {}/{}".format(tt,int(Tmax/k)))
 	plt.ylim([-0.5, 1.5])
 	plt.pause(0.001)
-        plt.xlabel('x')
-        plt.ylabel('density')
-        plt.savefig('../imgs/sb-gif/'+str(tt)+'.png')
-        if tt % 100 == 99: 
-            plt.savefig('../imgs/sb-'+str(tt)+'.png')
+	plt.xlabel('x')
+	plt.ylabel('density')
+	plt.savefig('../imgs/tl-sb-gif/'+str(tt)+'.png')
+	if tt % 100 == 99: 
+	    plt.savefig('../imgs/tl-sb-'+str(tt)+'.png')
 
 
 import imageio
 import os
-png_dir = '../imgs/sb-gif/'
+png_dir = '../imgs/tl-sb-gif/'
 images = []
 for tt in range(int(Tmax/k)):
     # if file_name.endswith('.png'):
     file_path = os.path.join(png_dir, str(tt) + '.png')
     images.append(imageio.imread(file_path))
-imageio.mimsave('../imgs/sb-movie.gif', images, fps=50)
+imageio.mimsave('../imgs/tl-sb-movie.gif', images, fps=50)

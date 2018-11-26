@@ -217,8 +217,8 @@ legend_array = []
 nsteps = len(X0)
 Toggle = True
 rho = find_solution(rho0, Tmax, nsteps, k, h, 
-					sbp = 0.2, 
-					tlp = 0.7,
+					sbp = 0.9, 
+					tlp = 0.2,
 					toggle = Toggle)
 
 

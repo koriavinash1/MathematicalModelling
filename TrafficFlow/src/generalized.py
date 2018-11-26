@@ -37,9 +37,9 @@ rhoCritical = 0.3
 vmax   = 1.0
 v = 0.1
 
-# F = lambda rho: rho*vmax if rho <= rhoCritical else rho*vmax*(1.0 - rho/rhoMax) if rhoCritical < rho <= rhoMax else 0
-# FD = lambda rho: vmax if rho <= rhoCritical else vmax - 2*rho/rhoMax if rhoCritical < rho <= rhoMax else 0
-# FStarSolve = lambda rho: vmax*rhoMax/2.0 if rhoCritical < rho <= rhoMax else 0
+#F = lambda rho: rho*vmax if rho <= rhoCritical else rho*vmax*(1.0 - rho/rhoMax) if rhoCritical < rho <= rhoMax else 0
+#FD = lambda rho: vmax if rho <= rhoCritical else vmax - 2*rho/rhoMax if rhoCritical < rho <= rhoMax else 0
+#FStarSolve = lambda rho: vmax*rhoMax/2.0 if rhoCritical < rho <= rhoMax else 0
 
 F = lambda U: U**2/2
 FD = lambda U: U
@@ -217,7 +217,7 @@ legend_array = []
 nsteps = len(X0)
 Toggle = True
 rho = find_solution(rho0, Tmax, nsteps, k, h, 
-					sbp = 0.9, 
+					sbp = 0.7, 
 					tlp = 0.2,
 					toggle = Toggle)
 
